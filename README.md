@@ -1,34 +1,86 @@
-# Ponte (One Piece RPG)
+# One Piece RPG — Mesa One Piece
 
-Este arquivo existe para dois chats (Mesa One Piece e RPG One Piece World Building)
-lerem o mesmo estado, mesmo sendo conversas separadas.
+Site de mesa online (JS puro + Firebase) para o RPG de One Piece do Fenrir, usando o
+sistema OP RPG (Livro do Jogador 2.1, Guia do Narrador 2.0, Manual dos Inimigos).
+Este README é o ponto de entrada para qualquer chat ou ferramenta que leia este
+repositório (inclusive a memória de código do Graphify, que no plano Free só indexa
+este arquivo, não os de `docs/`).
 
-## O que é este repositório
-- `site/` — código-fonte do site Mesa One Piece (vanilla JS + Firebase). `site/src/app/*.js`
-  é concatenado em ordem alfabética por `site/build.py` para gerar o site publicado.
-- `docs/` — planos, logs de cada versão, revisões e anotações de lore/sistema que o
-  Fenrir já escreveu em outras conversas. Nem tudo aqui é lore oficial: muita coisa é
-  ideia solta ou plano técnico. Só vira lore ou regra confirmada quando o Fenrir disser.
+## Estrutura
+- `site/src/` — código-fonte. `site/src/app/*.js` é concatenado em ordem alfabética
+  por `site/build.py`, gerando um único arquivo para o site (Netlify) e uma prévia
+  autocontida.
+- `site/firestore.rules` — regras do Firebase.
+- `docs/` — planos, logs de cada versão e anotações soltas, na íntegra (ver índice
+  abaixo). Nem tudo é lore oficial: vira oficial só quando o Fenrir confirmar.
 
 ## Regras permanentes do projeto (não mudam sem o Fenrir pedir)
-- Zero custo: nada de API paga, nada de IA rodando dentro do site.
-- Não criar conteúdo de personagem de jogador (só NPCs, lugares, navio/frota).
-- Perguntar antes de criar estrutura nova, a não ser que ele mande seguir.
-- Entregar só 2 ou 3 faíscas curtas e abertas, nunca caminhos prontos, a não ser que
-  ele diga "desenvolva".
-- Não inventar tempo de sessão, falas prontas nem cenas roteirizadas.
-- Toda entrega vem com log: o que testar, resultado certo, o que não está pronto.
-- Arte pode ter clima de One Piece, mas não copia personagem, bandeira ou cena oficial.
+- **Zero custo**: nada de API paga, nada de IA rodando dentro do site.
+- **Não criar conteúdo de personagem de jogador** — só NPCs, lugares, navio/frota.
+- **Perguntar antes de criar estrutura nova** (tabela, aba, categoria, controle),
+  a não ser que ele mande seguir direto.
+- **Só faíscas**: 2 ou 3 ideias curtas e abertas, nunca caminho pronto — a não ser
+  que ele diga "desenvolva".
+- **Não inventar** tempo de sessão, falas prontas, cenas roteirizadas ou sequência
+  de eventos.
+- **Toda entrega vem com log**: o que testar, resultado certo, o que não está pronto.
+- **Arte** pode ter clima de One Piece, mas não copia personagem, bandeira ou cena
+  oficial.
+- O papel da IA aqui: conectar as ideias soltas do Fenrir, checar o cânone de One
+  Piece sem ele precisar pesquisar, e dar faíscas para vilões/sessões. As decisões
+  e o processo criativo são dele.
 
-## Estado atual (ver docs/REVISAO_GERAL_V29.md para o detalhe)
-- Versão do site: v29 (postos navais, frota com missões, marujos figurantes sem ficha).
-- Pendente: revisão de abas, resumo da sessão 1 (o Fenrir escreve, não a IA), teste
-  com Firebase de verdade, separar motor de conteúdo para outros sistemas.
-- Decisão tomada: o bando pode crescer e ter frotas que rendem recursos de forma
-  passiva (estilo Kid/Barba Branca), mas continua sendo o protagonista da história.
+## Estado atual (v29)
+- Batalha naval com postos para jogadores (leme, canhões, homem das armas, reparos,
+  proteger o navio, vigia/convés).
+- Frota do bando: navios sem ficha, missões (regra da casa, não é do livro — ver
+  `docs/LOG_V29_POSTOS_FROTA_MARUJOS.md`), retorno pelo relógio da Mesa.
+  Decisão confirmada: o bando pode ter frotas que rendem recursos de forma passiva
+  (como Kid e Barba Branca), mas continua protagonista da história.
+- Marujos: tripulação figurante sem ficha, pode ganhar nome/rosto quando fixado.
+- Banco do bando e navio por peças (v28).
+- Corrigido na v29: janelas que só cresciam, modificador de dado em tela cheia,
+  menu do jogador com abas inacessíveis, overflow em telas pequenas.
+
+## Pendências conhecidas
+- Nunca testado com Firebase de verdade (só modo de teste).
+- Resumo da sessão 1: o Fenrir escreve, a IA não inventa.
+- Revisão/enxugamento de abas repetidas (esconder, não apagar).
+- Desbloqueáveis dentro da Batalha naval/Tripulação: abordagem, moral do convés,
+  marujo que vira gente marcante.
+- Separar motor (abas, Mesa, dados, Banco, janelas) do conteúdo (regras OP RPG),
+  pensando em reaproveitar a base para outros sistemas no futuro.
+- Submarino (LJ p. 318): não existe ainda.
+- Lore dos jogadores: resumos de PDF anexado são feitos pela IA, à mão, um por vez
+  — o resumo automático do site (`resumir()` em `site/src/app/66-jogador.js`) é só
+  um apanhado das frases mais repetidas, não lê sentido, e pode citar mentira de um
+  personagem como se fosse fato. Não confiar nele para lore.
+
+## Índice de `docs/`
+Planos e prompts:
+- `PLANO.md`, `PLANO_FINAL_FABLE.md` — plano geral e o plano organizado mais recente.
+- `PLANO_NAVAL_REVIEW.md`, `PROMPT_FABLE_BANCO_FROTA_REVISAO.md` — naval e banco/frota.
+- `PROMPT_COMPLETO_SITE.md`, `PROMPT_FABLE_MELHORAR_SITE.md` — prompts de melhoria do site.
+- `PROMPT_chat_de_lore.md` — ideia do chat separado de lore.
+- `REVISAO_ABAS_PLANO.md`, `REVISAO_GERAL_V29.md` — revisões de abas e revisão geral.
+- `BASE_PARA_OUTROS_SISTEMAS.md` — ideia de separar motor/conteúdo.
+- `HOMEBREW_FROTA_FAISCAS.md` — faíscas da homebrew de frota.
+- `GUIA_LORE_textos.md` — textos de lore já escritos.
+- `AUDITORIA_REGRAS_B7.md` — auditoria de regras do livro.
+- `SPRITES_PARA_O_SITE.md`, `PROMPTS_DE_ARTE_V26.md` — prompts de arte/sprites.
+- `UPDATE_LOG_JOGADORES.md` — changelog para os jogadores lerem.
+
+Logs de versão (o que mudou, como testar, o que ficou pendente):
+`LOG_V25_DADOS_E_MESA.md`, `LOG_V26_RODA_DA_MESA.md`, `LOG_V27_PIXEL_ART.md`,
+`LOG_V28_BANCO_E_ESTALEIRO.md`, `LOG_V29_POSTOS_FROTA_MARUJOS.md`.
+
+Logs de teste específicos: `LOG_FABLE_BLOCO1.md`, `LOG_FABLE_COMPLETO.md`,
+`LOG_NAVAL_VIVA.md`, `LOG_RETRATO_PDN_V22.md`, `LOG_SOM_E_LEGIBILIDADE.md`,
+`LOG_TESTE_*.md` (ficha, Gen, escudo de lore, sprites navais, naval simples, etc.).
 
 ## Como usar isto num chat novo
-1. Conectar este repositório ao Graphify (segunda cabeça / memória de código).
-2. Ler este arquivo primeiro.
-3. Antes de propor algo nas regras do sistema, checar `docs/` para não repetir ou
+1. Ler este README primeiro.
+2. Antes de propor algo nas regras do sistema, checar `docs/` para não repetir ou
    contradizer o que já foi decidido.
+3. O Graphify (memória de código) já está conectado a este repositório; use-o para
+   achar onde uma função/regra está implementada antes de reescrever algo.
