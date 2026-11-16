@@ -18,3 +18,8 @@ Tripulação › Moral: ponha 10 e veja "+4 nas rolagens da tripulação". Faça
 - A rota fixa também usa a moral nova (moral alta dá menos viagem ruim).
 - Ajudantes, bônus por função, navios customizáveis: só ideias.
 - Nunca testado com Firebase de verdade.
+
+## Adendo: update log refeito
+O update log agora é **uma versão só (33)** com tudo desde a sessão de 10/11 (a versão 22 era a que os jogadores tinham). Está escrito para o jogador. Deixei de fora o que é só do mestre (Ateliê, Mundo, Frota, rota fixa, valores da abordagem).
+**Como testar:** Retrato › Novidades. **Certo:** abre "v33 · Tudo desde a sessão de 10/11", com 10 grupos. A faixa "Tem novidade" aparece para quem ainda não viu a v33.
+**Não está pronto:** não sei se algum jogador já viu a v30–32 (banner). Se vir, só verá a v33 agora.
