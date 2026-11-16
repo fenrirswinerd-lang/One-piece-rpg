@@ -39,7 +39,10 @@ este arquivo, não os de `docs/`).
   Piece sem ele precisar pesquisar, e dar faíscas para vilões/sessões. As decisões
   e o processo criativo são dele.
 
-## Estado atual (v31)
+## Estado atual (v33)
+- **v33 · Vontade pesa**: moral do convés vale mais (10 = +4); abordagem não evita a luta (avisos); PDF da homebrew em docs/. Ideias futuras em docs/PARA_DEPOIS.md.
+
+### v31
 - **v31 · Marujos de verdade**: painel "Funções e efetivo" com protagonistas donos da função (pela profissão da ficha, até 3 funções),
   marujos completam o mínimo do navio (LJ p. 300), botão "Completar com marujos". Contagem por função = só marujos; `tot` = todos a bordo.
   Loja aberta no cabeçalho; etiquetas do Navio legíveis no escuro; update log novo (`site/src/novidades.md`, etiquetas `[novo]`). Log: `docs/LOG_V31.md`.

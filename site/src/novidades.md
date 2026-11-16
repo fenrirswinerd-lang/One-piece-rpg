@@ -4,6 +4,19 @@ O mais novo fica em cima. Se algo não aparecer para você, o mestre ainda não 
 
 ---
 
+## Versão 33 · Vontade pesa
+
+> Em One Piece, quem tem mais vontade nem sempre tem mais gente. A moral do convés agora vale mais.
+
+**⚓ Moral do convés**
+- [ajuste] A moral alta ajuda **bem mais** do que antes. Uma tripulação pequena, mas cantando no convés, pode encarar uma muito maior.
+- [ajuste] A moral muito baixa também pesa mais. Cuidem do ânimo do bando.
+
+**🏴‍☠️ Abordagem**
+- [novo] A abordagem **não evita** a luta. Os marujos ajudam a pesar a cena: menos inimigos chegando, ou uma vantagem no começo. O que acontece é do mestre.
+
+---
+
 ## Versão 32 · Marujos e moral, explicados
 
 > Nada de regra nova: só o jeito de ler o que já existe, para ninguém se perder no convés.
