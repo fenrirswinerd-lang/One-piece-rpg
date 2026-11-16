@@ -71,6 +71,7 @@ ACT['ab-abrir'] = () => { if (!souMestre()) return; const b = bn(), n = bnSel(b)
   const nossos = meu.frotaId || !e ? Math.round(((NV.tam[meu.tamanho] || NV.tam.Pequeno).trip) * 0.4) : Math.max(0, nvN(e.tot) - nJog), deles = Math.round(((NV.tam[outro.tamanho] || NV.tam.Pequeno).trip) * 0.6);
   Modal.abrir(`<h2>${ic('mesa:tripulacao', 32)} Abordar: ${esc(meu.nome)} × ${esc(outro.nome)}</h2>
     <p class="nota">Regra da casa. Aqui lutam só os <b>marujos</b>, em grupo, com um d20 por lado a cada rodada. Os protagonistas e os inimigos com nome lutam no Combate.</p>
+    <p class="nota"><b>Para que serve:</b> o resultado diz quem domina o convés e quantos marujos sobram de cada lado. Ele <b>não</b> decide a cena inteira: se a briga com o capitão ou os chefes acontece, e como, é sua narração.</p>
     <label class="campo-inline">Nossos marujos na luta <input id="ab-na" type="number" min="1" max="999" value="${Math.max(1, nossos)}" style="width:6em"></label>
     <label class="campo-inline">Marujos deles <input id="ab-nb" type="number" min="1" max="999" value="${Math.max(1, deles)}" style="width:6em"></label>
     <label class="campo-inline">Como eles são <select id="ab-am">${AB_AMEACA.map(([v, t]) => `<option value="${v}" ${v === 2 ? 'selected' : ''}>${t} (+${v})</option>`).join('')}</select></label>
@@ -123,6 +124,7 @@ function abPainelHTML(b, mestre) {
     ${mestre ? (A.fim ? `${A.fim === 'vitoria' ? `<div class="linha-bts">${A.tomado ? '<span class="tag">navio na frota do bando</span>' : `<button class="bt ouro" data-act="ab-tomar" title="O navio entra na Frota, do lado do bando, com o PV que sobrou">Tomar o navio para a frota</button>`}
           ${A.saque ? `<span class="tag">saque guardado: ${nvB(A.saque)}</span>` : `<label class="campo-inline">Saque ฿ <input id="ab-saque-v" type="number" min="0" value="${(FR_TAXA[tam] || FR_TAXA.Pequeno) * 5}" style="width:9em"></label><button class="bt fino" data-act="ab-saque">Guardar no Banco</button>`}
           ${cvRec('marcante') ? `<button class="bt fino" data-act="mj-destaque" data-feito="Abordagem ao ${esc(d ? d.nome : 'navio inimigo')}">Alguém se destacou?</button>` : ''}</div>
+          <p class="nota">O convés está decidido. Os protagonistas e os inimigos com nome só lutam no Combate se a cena pedir; você narra.</p>
           <p class="nota">O valor do saque é só uma sugestão (5 dias de rota calma desse tamanho de navio). Você decide o que tinha a bordo.</p>` : ''}
         <div class="linha-bts"><button class="bt bom" data-act="ab-encerrar">Fechar a luta${A.principal && A.na0 > A.na ? ` (−${A.na0 - A.na} no efetivo)` : ''}</button></div>`
       : `<div class="linha-bts"><button class="bt ruim" data-act="ab-rodada">${ic('mesa:d20', 32)} Rodada do convés</button><button class="bt fino" data-act="ab-encerrar">Encerrar sem vencedor</button></div>

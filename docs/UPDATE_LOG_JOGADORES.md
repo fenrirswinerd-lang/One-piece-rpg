@@ -4,6 +4,24 @@ O mais novo fica em cima. Se algo não aparecer para você, o mestre ainda não 
 
 ---
 
+## Versão 32 · Marujos e moral, explicados
+
+> Nada de regra nova: só o jeito de ler o que já existe, para ninguém se perder no convés.
+
+**⚓ Moral do convés** (quando o mestre desbloquear)
+- A moral vai de 0 a 10. Moral alta ajuda a tripulação nas rolagens que o site faz por ela; moral baixa atrapalha.
+- Ela sobe com festa, vitória e porto bom. Cai com baixas, fome e derrota. Sempre vem com um motivo escrito.
+
+**🏴‍☠️ Abordagem** (só quando o mestre usar)
+- É a luta dos **marujos em grupo**. Quem luta de verdade é você, no Combate, quando a cena pedir.
+- Ter mais gente, moral alta e protagonistas no convés ajuda o seu lado. O resultado é quantos marujos sobram e quem domina o convés.
+- Depois da luta, as baixas saem da tripulação e a moral muda um pouco.
+
+**🧑‍🍳 Funções**
+- Marujo ajuda a cumprir o que o navio pede. Quem tem a profissão (cozinheiro, navegador) **continua sendo o dono da função**.
+
+---
+
 ## Versão 31 · Marujos de verdade
 
 > Agora os marujos **valem alguma coisa na prática**, e quem tem função no navio (cozinheiro, navegador...) **continua sendo o dono da função**.
