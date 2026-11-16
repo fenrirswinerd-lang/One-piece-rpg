@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() { return request.auth != null && request.auth.token.email_verified == true; }
+    function mestre() { return logado() && request.auth.token.email == 'fenrirsw0@gmail.com'; }
+    function membro() {
+      return mestre() || (logado() &&
+        exists(/databases/$(database)/documents/config/membros) &&
+        request.auth.token.email in get(/databases/$(database)/documents/config/membros).data.emails);
+    }
+    // o diário do capitão é do capitão do bando (Tripulação), não de quem pega o leme de passagem
+    function capitao() {
+      return membro() && get(/databases/$(database)/documents/mesa/tripulacao).data.get('capitao', {}).get('uid', '') == request.auth.uid;
+    }
+
+    // Lista de jogadores liberados: todo mundo logado lê (para saber se entrou); só o mestre muda.
+    match /config/{doc} {
+      allow read: if logado();
+      allow write: if mestre();
+    }
+
+    // Área secreta do mestre: controle, mundo completo, webhook do Discord.
+    match /segredos/{doc=**} {
+      allow read, write: if mestre();
+    }
+
+    // Diário do capitão PÚBLICO: as páginas que o capitão publica; todos leem.
+    match /mesa/capitao/entradas/{id} {
+      allow read: if membro();
+      allow create: if mestre() || (capitao() && request.resource.data.uid == request.auth.uid);
+      allow update, delete: if mestre() || (capitao() && resource.data.uid == request.auth.uid);
+    }
+
+    // Diário PRIVADO do capitão (Bloco 5): cada capitão tem o seu. Só ele e o mestre leem.
+    // Escreve página nova enquanto é o capitão do bando; depois continua lendo, editando e apagando as dele.
+    match /capitaes/{uid}/entradas/{id} {
+      allow read: if mestre() || (membro() && request.auth.uid == uid);
+      allow create: if mestre() || (capitao() && request.auth.uid == uid && request.resource.data.uid == uid);
+      allow update, delete: if mestre() || (membro() && request.auth.uid == uid);
+    }
+
+    // Navio: o mestre monta. Se ele ligar "os jogadores podem mexer", os membros também editam (sem poder desligar a chave).
+    match /mesa/navio {
+      allow read: if membro();
+      allow write: if mestre() || (membro() && resource.data.get('editavel', false) == true
+        && request.resource.data.get('editavel', false) == true);
+    }
+    match /mesa/navio/mudancas/{id} {
+      allow read: if membro();
+      allow create: if mestre() || (membro()
+        && get(/databases/$(database)/documents/mesa/navio).data.get('editavel', false) == true
+        && request.resource.data.uid == request.auth.uid);
+      allow delete: if mestre();
+    }
+
+    // Mesa compartilhada (estado, mundo publicado, combate, tripulação, jornal, diário de bordo): todos leem, só o mestre escreve.
+    match /mesa/{doc=**} {
+      allow read: if membro();
+      allow write: if mestre();
+    }
+
+    // Cada jogador: ficha, vida, inventário (todos leem); diário e lore ficam em /privado (só o dono e o mestre).
+    match /jogadores/{uid} {
+      allow read: if membro();
+      allow write: if mestre() || (membro() && request.auth.uid == uid);
+      match /privado/{doc} {
+        allow read, write: if mestre() || (membro() && request.auth.uid == uid);
+      }
+    }
+
+    // Arquivos (imagens, músicas, efeitos, fotos, PDFs) guardados em pedaços. Cada um é dono do que envia.
+    match /arquivos/{id} {
+      allow read: if membro();
+      allow create: if membro() && request.resource.data.dono == request.auth.uid;
+      allow update, delete: if mestre() || (membro() && resource.data.dono == request.auth.uid);
+      match /partes/{n} {
+        allow read: if membro();
+        allow write: if mestre() || (membro() && (
+          !exists(/databases/$(database)/documents/arquivos/$(id)) ||
+          get(/databases/$(database)/documents/arquivos/$(id)).data.dono == request.auth.uid));
+      }
+    }
+
+    // Rolagens na mesa: cada membro cria a sua; ninguém edita a dos outros.
+    match /rolagens/{id} {
+      allow read: if membro();
+      allow create: if membro() && request.resource.data.uid == request.auth.uid;
+      allow delete: if mestre();
+    }
+
+    // Todo o resto é bloqueado.
+    match /{outro=**} { allow read, write: if false; }
+  }
+}
