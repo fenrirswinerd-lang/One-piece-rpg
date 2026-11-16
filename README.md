@@ -74,6 +74,10 @@ este arquivo, não os de `docs/`).
   avançado. **Faltam mais frutas** — o Fenrir ainda vai anexar.
 - `fontes/lore/morita-roman-o-tontatta.md` — lore do personagem Roman (Tontatta).
   **Falta a lore dos outros jogadores.**
+- `fontes/lore/primeiro-arco-lore-reunida.md` — resumo do Primeiro Arco (Lastro,
+  Mary Geoise, Casca Branca) e dos NPCs principais, mantido pelo chat de lore.
+  A fonte da verdade continua sendo a Bíblia da Campanha e o Notion; este arquivo é
+  só o que dá pra ler aqui dentro.
 
 O PDF de Jujutsu/Feiticeiros & Maldições (F&M) é de outro projeto do Fenrir e
 fica fora deste repositório de propósito.
