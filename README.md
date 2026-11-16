@@ -13,6 +13,10 @@ este arquivo, não os de `docs/`).
 - `site/firestore.rules` — regras do Firebase.
 - `docs/` — planos, logs de cada versão e anotações soltas, na íntegra (ver índice
   abaixo). Nem tudo é lore oficial: vira oficial só quando o Fenrir confirmar.
+- `fontes/` — texto extraído dos PDFs/.docx oficiais do sistema (livros, frutas,
+  regras do narrador, lore de personagem), em `.md` para caber no GitHub e ser
+  lido por qualquer ferramenta de texto/código. Os PDFs originais continuam só
+  no chat; isto aqui é o conteúdo deles, não um resumo.
 
 ## Regras permanentes do projeto (não mudam sem o Fenrir pedir)
 - **Zero custo**: nada de API paga, nada de IA rodando dentro do site.
@@ -55,6 +59,24 @@ este arquivo, não os de `docs/`).
   — o resumo automático do site (`resumir()` em `site/src/app/66-jogador.js`) é só
   um apanhado das frases mais repetidas, não lê sentido, e pode citar mentira de um
   personagem como se fosse fato. Não confiar nele para lore.
+
+## Índice de `fontes/`
+- `fontes/livros/livro-do-jogador-2.1.md` — Livro do Jogador (LJ 2.1), regra base.
+- `fontes/livros/guia-do-narrador-2.0.md` — Guia do Narrador (GN 2.0).
+- `fontes/livros/manual-dos-inimigos-playtest.md` — Manual dos Inimigos (MI, playtest).
+- `fontes/livros/resumo-criacao-tecnicas-1.5.md` — resumo de criação de técnicas.
+- `fontes/livros/modelo-ficha-de-inimigos.md` — modelo de ficha de inimigo.
+- `fontes/narrador/` — regras extras por categoria, regras opcionais (By Lucco),
+  estilos de combate exclusivos 2.1, mudanças no multiestilo, espécie Oni 2.0.
+- `fontes/frutas/` — Akuma no Mi já detalhadas: Ope Ope, Yami Yami, Pika Pika,
+  Suna Suna, Wara Wara, Tama Tama, Ato Ato, Uo Uo (Seiryu), Zou Zou (Mammoth),
+  Saru Saru (Sun Wukong), Suke Suke, e o modelo para frutos Logia/Paramecia
+  avançado. **Faltam mais frutas** — o Fenrir ainda vai anexar.
+- `fontes/lore/morita-roman-o-tontatta.md` — lore do personagem Roman (Tontatta).
+  **Falta a lore dos outros jogadores.**
+
+O PDF de Jujutsu/Feiticeiros & Maldições (F&M) é de outro projeto do Fenrir e
+fica fora deste repositório de propósito.
 
 ## Índice de `docs/`
 Planos e prompts:
