@@ -4,47 +4,70 @@ O mais novo fica em cima. Se algo não aparecer para você, o mestre ainda não 
 
 ---
 
-## Versão 30
+## Versão 31 · Marujos de verdade
 
-**Inventário puxa a mochila da ficha**
+> Agora os marujos **valem alguma coisa na prática**, e quem tem função no navio (cozinheiro, navegador...) **continua sendo o dono da função**.
+
+**⚓ Funções e efetivo (aba Tripulação)**
+- [novo] Cada **protagonista** entra no navio pela **profissão da ficha**: o cozinheiro cozinha, o navegador navega. O marujo **ajuda**, não toma o lugar.
+- [novo] Quadro **Quem faz o quê**: cada jogador pode ter até **3 funções** (o mestre marca). Com 2, não treina na viagem. Com 3, não exerce a profissão (LJ p. 299).
+- [novo] O navio pede **mais gente quanto maior ele for**: um navio Pequeno fecha o mínimo só com o bando; Médio e Grande precisam de marujos. O site mostra **Tem / Mínimo / Necessário** de cada função e o que acontece se faltar.
+- [novo] Botão **Completar com marujos** (mestre): o site preenche o que falta, a partir do mínimo.
+- [ajuste] Os números por função contam **só marujos**. Os protagonistas entram sozinhos pela ficha.
+
+**🧰 O que os marujos mudam na prática**
+- **Navio principal:** cumprir o **efetivo mínimo** (sem isso o navio sofre os efeitos do livro), **lotação**, **custo de recrutar** (sai do Banco do bando) e a **abordagem** (a força do nosso lado vem dos marujos vivos).
+- **Navios da frota:** são **abstratos**. Não gastam os marujos do principal; o rendimento da missão vem do tamanho do navio e do risco.
+- Marujos **não produzem recursos sozinhos**: quem rende dinheiro e achados é a frota, a rota fixa e as missões.
+
+**🎨 Telas**
+- [corrigido] As etiquetas **Pequeno** e **Cedro** da aba Navio estavam ilegíveis no tema escuro.
+- [ajuste] O ícone da **loja aberta** foi para o cabeçalho e não cobre mais os quadrados da Mesa.
+- [ajuste] A tabela de funções vira **cartões** no celular.
+
+---
+
+## Versão 30 · Mesa mais viva
+
+**🎒 Inventário puxa a mochila da ficha**
 - O botão **Trazer itens, armas e dinheiro da ficha** agora lê a nota (comentário) da mochila, bolsa ou baú na planilha. Cada item da nota entra **dentro** dela, com o peso em kg que estiver escrito.
 - Se a planilha não tiver nota, use **＋ Colar lista** na mochila: cole a lista (um item por linha ou separado por vírgula) e o site põe dentro.
 - Importar de novo não duplica: o que já está no inventário fica como está.
 
-**Pergunte ao livro lê o livro**
+**📖 Pergunte ao livro lê o livro**
 - Além das regras prontas, agora aparecem **trechos do Livro do Jogador** com o número da página. Clique em **ler a página inteira** para ver o texto todo.
 
-**Mesa**
+**🪑 Mesa**
 - Os retratos na roda da Mesa ficam centralizados e do tamanho certo em qualquer tela. No Palco (tela cheia), os assentos crescem junto com a tela.
 
-**Diário de bordo**
+**📜 Diário de bordo**
 - O texto do mestre marcado como **Resumo da sessão** ganha um selo, para achar fácil o que aconteceu.
 
-**Sua lore**
+**🧭 Sua lore**
 - Na aba Personagem, o site não inventa resumo da sua lore. Ele mostra **Pontos do texto** (começo, fim e os marcos de tempo) e os **nomes que mais aparecem**. Quem conta a história é você e o mestre.
 
-**Na tela de todos**
+**🎬 Na tela de todos**
 - **Título**: o mestre pode pôr o nome do arco ou do episódio na tela, como abertura de anime.
 - **Chegada na ilha**: quando o bando chega numa ilha, aparece a arte da ilha (ou o ícone dela) com o nome.
 
-**Tripulação: recursos do convés** (só quando o mestre desbloquear)
+**⚓ Tripulação: recursos do convés** (só quando o mestre desbloquear)
 - **Moral do convés**: de 0 a 10, o ânimo dos marujos. Todo mundo vê.
 - **Marujo que vira gente**: marujos com rosto ganham feitos (estrelas).
 - **Abordagem**: na Batalha naval, vocês veem a luta dos marujos no convés inimigo, rodada a rodada.
 - **Rota fixa**: um navio da frota repete a missão sozinho.
 
-**Menu mais curto**
-- O menu tem menos abas. **Navio** e **Banco do bando** abrem por botões no topo da **Tripulação**; **Procurados**, no topo do **Jornal**; **Catálogo**, no topo do **Pergunte ao livro**.
+**🗂️ Menu mais curto**
+- O menu tem menos abas. **Navio** e **💰 Banco do bando** abrem por botões no topo da **Tripulação**; **Procurados**, no topo do **Jornal**; **Catálogo**, no topo do **Pergunte ao livro**.
 - Prefere o menu completo? Clique no seu retrato (canto de cima) e escolha **Abas do menu: Todas**.
 
-**Novidades**
+**✨ Novidades**
 - Esta janela. Ela aparece uma vez a cada versão nova. Para ver de novo, clique no seu retrato (canto de cima) e em **Novidades**.
 
 ---
 
-## Versão 29
+## Versão 29 · Cada um no seu posto
 
-**Batalha naval: agora você tem um posto**
+**⚔️ Batalha naval: agora você tem um posto**
 Quando o mestre mostrar a aba Batalha naval, escolha onde você está no navio:
 - **Leme**: pede uma manobra (virar, mais vela, menos vela, âncora). O mestre clica Fazer.
 - **Canhões**: quando o mestre mandar fogo, aparece o botão **FOGO!** e **você** rola o tiro.
@@ -55,28 +78,28 @@ Quando o mestre mostrar a aba Batalha naval, escolha onde você está no navio:
 
 Você pode trocar de posto quando quiser. Nada acontece no navio sem o clique do mestre.
 
-**Tripulação**
+**⚓ Tripulação**
 - Aparecem os **marujos**: a gente do convés que faz o navio andar. Eles não têm ficha. Quando o mestre der nome e rosto a um deles, ele aparece em "Rostos do convés".
 - Aparece a **frota do bando**, com os navios, comandantes e o que cada um está fazendo.
 
-**Dados em tela cheia**
+**🎲 Dados em tela cheia**
 - No Palco (botão ⛶ do quadro) agora tem **mod** com − e +, igual à janela Rolar dados.
 
-**Corrigido**
+**🔧 Corrigido**
 - O menu de cima não deixa mais as primeiras abas escondidas. A aba aberta fica sempre à vista, e a rodinha do mouse rola o menu.
 - As janelas da Mesa não crescem mais sozinhas e se arrumam quando você muda o tamanho do navegador.
 - Jornal, Diário de bordo e as barras de PV/PP não saem mais da tela no celular.
 
 ---
 
-## Versão 28
+## Versão 28 · Banco e navio por peças
 
-**Banco do bando** (aba nova, quando o mestre liberar)
+**💰 Banco do bando** (aba nova, quando o mestre liberar)
 - Você **deposita** Berries da sua Carteira no cofre do bando. Fica anotado nos seus gastos.
 - Para gastar do cofre, você **pede** e o mestre aprova ou recusa. Ninguém tira dinheiro sozinho.
 - Dá para ver o saldo, a meta do bando, quem depositou quanto e o histórico.
 
-**Navio por peças**
+**🚢 Navio por peças**
 - Na aba Navio, o mestre pode montar o navio por peças do livro (casco, madeira, mastros, motor, canhões, cômodos). CR, BR, PV e velocidade passam a ser calculados.
 - Você pode **pedir** uma compra ou uma obra. O dinheiro sai do Banco do bando quando o mestre aprovar.
 - Cômodos têm despesa por semana. Atrasou, eles ficam sem benefício.

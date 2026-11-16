@@ -39,7 +39,12 @@ este arquivo, não os de `docs/`).
   Piece sem ele precisar pesquisar, e dar faíscas para vilões/sessões. As decisões
   e o processo criativo são dele.
 
-## Estado atual (v30)
+## Estado atual (v31)
+- **v31 · Marujos de verdade**: painel "Funções e efetivo" com protagonistas donos da função (pela profissão da ficha, até 3 funções),
+  marujos completam o mínimo do navio (LJ p. 300), botão "Completar com marujos". Contagem por função = só marujos; `tot` = todos a bordo.
+  Loja aberta no cabeçalho; etiquetas do Navio legíveis no escuro; update log novo (`site/src/novidades.md`, etiquetas `[novo]`). Log: `docs/LOG_V31.md`.
+
+### Antes (v30)
 - **Inventário**: "Trazer da ficha" lê a nota (comentário) da mochila na planilha (baixa o .xlsx pelo link)
   e põe os itens dentro do recipiente, com peso. Plano B: "＋ Colar lista" em cada recipiente.
 - **Pergunte ao livro**: além das regras prontas, busca no texto inteiro dos livros (sem IA, custo zero).

@@ -15,7 +15,7 @@ const MJ = { novo: null };
 const mjEfe = () => (M.trip || {}).efe || null;
 const mjRostos = () => Array.isArray((M.trip || {}).rostos) ? M.trip.rostos : [];
 const mjFun = k => (MJ_FUN.find(x => x[0] === k) || ['', 'Sem função fixa', 'marujo']);
-const mjZero = () => ({ nav: 0, limp: 0, vig: 0, art: 0, polv: 0, coz: 0, tot: (M.jogadores || []).filter(j => j.estilo).length });
+const mjZero = () => ({ nav: 0, limp: 0, vig: 0, art: 0, polv: 0, coz: 0, tot: (M.jogadores || []).length });
 function mjSorteia() {
   const e = mjEfe() || {}, saco = []; MJ_FUN.forEach(([k]) => { for (let i = 0; i < Math.min(20, nvN(e[k])); i++) saco.push(k); });
   const of = saco.length ? frSorteia(saco) : '', usados = new Set(mjRostos().map(r => r.nome)), livres = MJ_NOMES.filter(n => !usados.has(n));

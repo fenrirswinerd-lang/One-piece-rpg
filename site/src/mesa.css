@@ -2012,3 +2012,54 @@ body.nav-cima #nav > :last-child { margin-right: auto; }
 /* v30 · títulos grandes não empurram a tela no celular (ex.: Jornal da Economia Mundial em 360 px) */
 @media (max-width: 480px) { #vista h1 { font-size: clamp(26px, 8.5vw, 46px); flex-wrap: wrap; min-width: 0; } }
 .bn-ctl label { max-width: 100%; flex-wrap: wrap; } .bn-ctl label select { flex: 1 1 160px; }
+
+/* v30 · loja aberta no cabeçalho (não cobre mais as janelas da Mesa) */
+.loja-bt { width: auto !important; max-width: min(240px, 38vw); display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px 2px 4px; animation: loja-pisca 2.4s ease-in-out 3; }
+.loja-bt span { display: grid; min-width: 0; text-align: left; line-height: 1.05; }
+.loja-bt small { font: 400 9px var(--rotulo); letter-spacing: .06em; text-transform: uppercase; opacity: .8; }
+.loja-bt b { font: 400 15px var(--display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@keyframes loja-pisca { 50% { box-shadow: 0 0 0 4px rgba(224, 184, 102, .65); } }
+@media (max-width: 640px) { .loja-bt span { display: none; } .loja-bt { padding: 2px 4px; } }
+@media (prefers-reduced-motion: reduce) { .loja-bt { animation: none; } }
+
+/* v30 · aba Navio: etiquetas de tamanho e madeira legíveis no tema escuro */
+.nv-tags .tag:not(.bom):not(.medio):not(.ruim):not(.ouro) { background: #f3e3b8; color: #2a180d; border-color: #2a180d; }
+
+/* v30 · funções e efetivo: protagonistas e marujos lado a lado */
+.efe-resumo { margin: 8px 0; padding: 8px 12px; font-size: 14px; background: rgba(46, 139, 87, .16); border-left: 5px solid #2e8b57; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.efe-resumo.falta { background: rgba(201, 150, 60, .22); border-left-color: #c9963c; }
+.efe-h { margin: 12px 0 4px; font: 400 15px var(--rotulo); letter-spacing: .05em; text-transform: uppercase; } .efe-h small { opacity: .7; }
+.efe-ps { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+.efe-p { display: grid; grid-template-columns: minmax(120px, 190px) minmax(0, 1fr); gap: 4px 12px; align-items: center; padding: 6px 10px; background: rgba(128, 128, 128, .12); border: 2px solid var(--painel-b); }
+.efe-pn { display: grid; min-width: 0; } .efe-pn b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .efe-pn small { font-size: 12px; opacity: .75; }
+.efe-chips { display: flex; flex-wrap: wrap; gap: 4px; } .efe-chips .chip { font-size: 12px; padding: 2px 8px; }
+.efe-chips .chip:disabled { opacity: 1; cursor: default; } .efe-chips .chip.on { background: var(--gold); color: #2a180d; border-color: #2a180d; }
+.efe-av { grid-column: 1 / -1; font-size: 12px; opacity: .85; } .efe-av.ruim { color: #b3261e; opacity: 1; font-weight: 700; }
+.efe-q { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.efe-prot { font-weight: 700; padding: 0 6px; background: rgba(201, 150, 60, .35); border: 2px solid #2a180d; white-space: nowrap; }
+.efe-mar { white-space: nowrap; }
+.efe-tab small { opacity: .8; }
+@media (max-width: 640px) {
+  .efe-p { grid-template-columns: minmax(0, 1fr); }
+  .efe-tab, .efe-tab tbody { display: block; } .efe-tab thead { display: none; }
+  .efe-tab tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 6px; margin: 0 0 8px; padding: 6px 8px; border: 2px solid var(--painel-b); background: rgba(128, 128, 128, .08); }
+  .efe-tab td { display: block; padding: 0; border: 0; text-align: left !important; white-space: normal !important; }
+  .efe-tab td.efe-fn { grid-column: 1 / -1; font: 400 15px var(--rotulo); }
+  .efe-tab td.efe-q { grid-column: 1 / -1; }
+  .efe-tab td[data-l]::before { content: attr(data-l) ': '; opacity: .7; font-size: 12px; }
+  .efe-tab td.efe-co { grid-column: 1 / -1; font-size: 13px; margin-top: 2px; }
+  .efe-tab tr.efe-sem td:first-child, .efe-tab tr.efe-min td:first-child, .efe-tab tr.efe-ok td:first-child { box-shadow: none; }
+  .efe-tab tr.efe-sem { border-left: 6px solid #c9302c; } .efe-tab tr.efe-min { border-left: 6px solid #e0b22e; } .efe-tab tr.efe-ok { border-left: 6px solid #4e9a4a; }
+}
+
+/* ───── novidades: visual do patch note ───── */
+.nov-cab { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px; padding: 8px 12px; background: var(--ink); color: var(--paper); border: 3px solid var(--ink); }
+.nov-cab b { font: 400 20px var(--display); letter-spacing: .02em; line-height: 1.15; }
+.nov-cab.vel { margin-top: 18px; background: rgba(128, 128, 128, .22); color: inherit; border-color: var(--painel-b); } .nov-cab.vel b { font-size: 17px; }
+.nov-v { flex: none; padding: 2px 8px; font: 400 15px var(--rotulo); letter-spacing: .06em; background: var(--gold); color: #2a180d; border: 2px solid #2a180d; }
+.nov-dest { margin: 0 0 10px; padding: 8px 12px; border-left: 6px solid var(--gold); background: rgba(201, 150, 60, .18); font-size: 15px; }
+.nov-txt h4 { padding-bottom: 3px; border-bottom: 2px dashed rgba(128, 128, 128, .5); }
+.nov-txt li { line-height: 1.4; }
+.nov-tag { display: inline-block; margin-right: 2px; padding: 0 6px; font: 400 11px var(--rotulo); letter-spacing: .06em; text-transform: uppercase; vertical-align: 1px; border: 2px solid #2a180d; color: #2a180d; background: #e8d9b0; }
+.nov-novo { background: #8fd18b; } .nov-ajuste { background: #f0cf72; } .nov-corrigido { background: #f09a8e; } .nov-mestre { background: #a9c4ee; }
+@media (max-width: 480px) { .nov-cab b { font-size: 17px; } }

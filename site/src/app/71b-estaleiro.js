@@ -258,34 +258,79 @@ ACT['nv-dano'] = () => { const n = navio(), d = num($('#nv-val').value) || 0; if
   const patch = { pv: n.pv - resto }; if (noPar) patch.par = { v: par - noPar, ate: n.par.ate };
   gravarNavio(patch, `navio levou ${f} de dano (${d} − BR ${n.br})${noPar ? `, ${noPar} nos PV paralelos` : ''}`); Som.tocar('canhao'); };
 
-/* ───── efetivo da tripulação (LJ p. 300) ───── */
+/* ───── efetivo da tripulação (LJ p. 300) ─────
+   v30: quem faz cada função é a soma de DOIS grupos, mostrados separados para ninguém perder o mérito:
+     · protagonistas (jogadores): a função vem da profissão da ficha (Navegador, Timoneiro → Navegação; Cozinheiro → Cozinha)
+       e o mestre ajusta em "Quem faz o quê". Cada pessoa faz até 3 funções (LJ p. 299): com 2 não treina na viagem, com 3 não exerce a profissão.
+     · marujos (sem ficha): o número digitado na tabela. Completam o que o navio pede pelo tamanho, e nunca tiram o lugar do protagonista.
+   Os números por função em mesa/tripulacao.efe passam a ser SÓ de marujos; efe.tot continua sendo todo mundo a bordo. */
+const NV_FUN = [['nav', 'Navegação'], ['limp', 'Limpeza'], ['vig', 'Vigilância'], ['art', 'Artilheiros'], ['polv', 'Rapazes da pólvora'], ['coz', 'Cozinha']];
+const nvProfFun = j => { const p = (fichaDe(j) || {}).profissao || '', r = []; if (/navegador|timoneiro/i.test(p)) r.push('nav'); if (/cozinheir/i.test(p)) r.push('coz'); return r; };
+const nvFunJ = j => { const o = ((M.trip || {}).funJ || {})[j.uid]; return (Array.isArray(o) ? o : nvProfFun(j)).filter(k => NV_FUN.some(f => f[0] === k)).slice(0, 3); };
+const nvProts = () => (M.jogadores || []).map(j => ({ uid: j.uid, nome: nomeJ(j), fun: nvFunJ(j), prof: String((fichaDe(j) || {}).profissao || '').trim(), manual: Array.isArray(((M.trip || {}).funJ || {})[j.uid]) }));
 function nvEfetivo() {
   const n = navio(), e = (M.trip || {}).efe; if (!e) return null;
   const T = NV.efe[n.tamanho] || NV.efe.Pequeno, can = nvCanhoes(n), vigia = nvTem(n, 'vigia'), tot = nvN(e.tot), lot = (NV.tam[n.tamanho] || NV.tam.Pequeno).trip + (nvTem(n, 'cozinha') ? 5 : 0);
-  const est = (tem, min, nec) => tem < min ? 'sem' : tem < nec ? 'min' : 'ok';
+  const P = nvProts(), est = (tem, min, nec) => tem < min ? 'sem' : tem < nec ? 'min' : 'ok';
+  const cz = tot > 0 ? 1 + Math.max(0, Math.ceil((tot - 50) / 25)) : 0;
   const L = [
-    { k: 'nav', n: 'Navegação', tem: nvN(e.nav), min: T.nav[0], nec: T.nav[1], sem: 'O navio não navega.', mn: 'Testes de navegação com desvantagem e o navio não faz manobras.' },
-    { k: 'limp', n: 'Limpeza', tem: nvN(e.limp), min: T.limp[0], nec: T.limp[1], sem: 'A cada 4 dias, Salvaguarda de Constituição CD 18 ou fica Doente. Andar no navio custa o dobro.', mn: 'Andar no navio custa o dobro.' },
-    { k: 'vig', n: 'Vigilância', tem: nvN(e.vig), min: T.vig[0], nec: vigia ? 2 : T.vig[1], sem: 'Infiltração pode roubar tudo e ataques-surpresa são frequentes.', mn: 'Ataque-surpresa se falhar Percepção CD 18 a cada duas noites.' },
-    { k: 'art', n: 'Artilheiros', tem: nvN(e.art), min: can, nec: can, sem: `Só ${nvN(e.art)} de ${can} canhões atiram (1 artilheiro por canhão).`, mn: '' },
-    { k: 'polv', n: 'Rapazes da pólvora', tem: nvN(e.polv), min: 0, nec: can, sem: '', mn: 'Canhão sem rapaz da pólvora não atira 2 turnos seguidos.' },
-    { k: 'coz', n: 'Cozinheiros (e ajudantes)', tem: nvN(e.coz), min: tot > 0 ? 1 + Math.max(0, Math.ceil((tot - 50) / 25)) : 0, nec: tot > 0 ? 1 + Math.max(0, Math.ceil((tot - 50) / 25)) : 0, sem: 'Parte da tripulação fica sem comer (1 cozinheiro alimenta 50; cada ajudante, mais 25).', mn: '' }
+    { k: 'nav', n: 'Navegação', min: T.nav[0], nec: T.nav[1], sem: 'O navio não navega.', mn: 'Testes de navegação com desvantagem e o navio não faz manobras.' },
+    { k: 'limp', n: 'Limpeza', min: T.limp[0], nec: T.limp[1], sem: 'A cada 4 dias, Salvaguarda de Constituição CD 18 ou fica Doente. Andar no navio custa o dobro.', mn: 'Andar no navio custa o dobro.' },
+    { k: 'vig', n: 'Vigilância', min: T.vig[0], nec: vigia ? 2 : T.vig[1], sem: 'Infiltração pode roubar tudo e ataques-surpresa são frequentes.', mn: 'Ataque-surpresa se falhar Percepção CD 18 a cada duas noites.' },
+    { k: 'art', n: 'Artilheiros', min: can, nec: can, sem: `Só uma parte dos ${can} canhões atira (1 artilheiro por canhão).`, mn: '' },
+    { k: 'polv', n: 'Rapazes da pólvora', min: 0, nec: can, sem: '', mn: 'Canhão sem rapaz da pólvora não atira 2 turnos seguidos.' },
+    { k: 'coz', n: 'Cozinha (cozinheiros e ajudantes)', min: cz, nec: cz, sem: 'Parte da tripulação fica sem comer (1 cozinheiro alimenta 50; cada ajudante, mais 25).', mn: '' }
   ];
-  L.forEach(x => { x.est = est(x.tem, x.min, x.nec); });
-  return { L, tot, lot, cheio: tot > lot, semCozinha: tot > 0 && !nvTem(n, 'cozinha') && !!n.pecas };
+  L.forEach(x => { x.prot = P.filter(p => p.fun.includes(x.k)); x.mar = nvN(e[x.k]); x.tem = x.mar + x.prot.length; x.est = est(x.tem, x.min, x.nec); x.folga = Math.max(0, x.tem - x.nec); x.soProt = x.prot.length >= x.min && x.min > 0; });
+  const vagas = L.reduce((a, x) => a + x.min, 0), porProt = L.reduce((a, x) => a + Math.min(x.prot.length, x.min), 0), falta = L.reduce((a, x) => a + Math.max(0, x.min - x.tem), 0);
+  return { L, P, tot, lot, cheio: tot > lot, semCozinha: tot > 0 && !nvTem(n, 'cozinha') && !!n.pecas, vagas, porProt, falta, nMar: Math.max(0, tot - P.length) };
 }
 ACT['tp-efe'] = el => { if (!souMestre()) return; DB.gravar('mesa/tripulacao', { efe: { [el.dataset.k]: Math.max(0, Math.round(nvN(el.value))) } }); };
-ACT['tp-efe-ligar'] = () => souMestre() && DB.gravar('mesa/tripulacao', { efe: { nav: 0, limp: 0, vig: 0, art: 0, polv: 0, coz: 0, tot: (M.jogadores || []).filter(j => j.estilo).length } }).then(() => toast('Efetivo ligado. Preencha quantos tripulantes cuidam de cada função.', { tipo: 'bom' }));
+ACT['tp-efe-ligar'] = () => souMestre() && DB.gravar('mesa/tripulacao', { efe: { nav: 0, limp: 0, vig: 0, art: 0, polv: 0, coz: 0, tot: (M.jogadores || []).length } }).then(() => toast('Efetivo ligado. Os protagonistas já entram pela profissão; preencha os marujos de cada função.', { tipo: 'bom' }));
 ACT['tp-efe-fim'] = () => souMestre() && confirmar('Desligar o controle de efetivo?', () => DB.gravar('mesa/tripulacao', { efe: APAGAR }));
+ACT['tp-fun'] = el => { if (!souMestre()) return; const p = nvProts().find(x => x.uid === el.dataset.u); if (!p) return; const k = el.dataset.k; let L = p.fun.slice();
+  if (L.includes(k)) L = L.filter(x => x !== k); else { if (L.length >= 3) return toast(`<b>${esc(p.nome)}</b> já faz 3 funções. O livro não deixa mais (LJ p. 299).`, { tipo: 'ruim' }); L.push(k); }
+  DB.gravar('mesa/tripulacao', { funJ: { [p.uid]: L } }); };
+ACT['tp-fun-auto'] = el => souMestre() && DB.gravar('mesa/tripulacao', { funJ: { [el.dataset.u]: APAGAR } }).then(() => toast('Voltou a seguir a profissão da ficha.'));
+/* completar o que falta com marujos de uma vez (o mestre escolhe: só o mínimo, ou até ficar completo) */
+ACT['tp-completar'] = () => { if (!souMestre()) return; const E = nvEfetivo(); if (!E) return;
+  const dMin = x => Math.max(0, x.min - x.tem), dNec = x => Math.max(0, x.nec - x.tem);
+  Modal.abrir(`<h2>${ic('mesa:tripulacao', 32)} Completar o efetivo com marujos</h2>
+    <p class="nota">Os protagonistas já foram contados. Aqui entram só marujos (sem ficha) para o que ainda falta, pelo tamanho do navio (${esc(navio().tamanho)}).</p>
+    <table class="tab efe-tab"><thead><tr><th>Função</th><th>Falta p/ mínimo</th><th>Falta p/ completo</th><th>Recrutar</th></tr></thead><tbody>${E.L.map(x => `<tr><td>${x.n}</td><td>${dMin(x)}</td><td>${dNec(x)}</td><td><input type="number" min="0" max="200" id="tpc-${x.k}" data-min="${dMin(x)}" data-nec="${dNec(x)}" value="${dMin(x)}" style="width:4.5em" aria-label="${x.n}"></td></tr>`).join('')}</tbody></table>
+    <div class="linha-bts"><button class="bt fino" data-act="tp-completar-pre" data-m="min">Só o mínimo</button><button class="bt fino" data-act="tp-completar-pre" data-m="nec">Até completo</button></div>
+    <label class="campo-inline">Custo total ฿ <input id="tpc-custo" type="number" min="0" value="0" style="width:9em"></label>
+    <p class="nota">O livro não dá preço para contratar. Se você cobrar, sai do Banco do bando (saldo: ${nvB(bancoSaldo())}). A bordo agora: ${E.tot} de ${E.lot} que cabem.</p>
+    <div class="linha-bts"><button class="bt bom" data-act="tp-completar-ok">Recrutar</button><button class="bt" data-act="modal-fechar">Cancelar</button></div>`, { classe: 'larga' }); };
+ACT['tp-completar-pre'] = el => $$('[id^="tpc-"][data-min]').forEach(i => { i.value = i.dataset[el.dataset.m]; });
+ACT['tp-completar-ok'] = () => { if (!souMestre()) return; const e = Object.assign(mjZero(), mjEfe() || {}), patch = {}; let q = 0;
+  NV_FUN.forEach(([k]) => { const v = clamp(Math.round(num(($('#tpc-' + k) || {}).value) || 0), 0, 200); if (v) { patch[k] = nvN(e[k]) + v; q += v; } });
+  const c = Math.max(0, Math.round(num(($('#tpc-custo') || {}).value) || 0)); if (!q) return Modal.fechar();
+  if (c > bancoSaldo()) return toast(`O Banco do bando só tem ${nvB(bancoSaldo())}. Faltam ${nvB(c - bancoSaldo())}.`, { tipo: 'ruim', tempo: 6000 });
+  patch.tot = nvN(e.tot) + q; Modal.fechar();
+  DB.gravar('mesa/tripulacao', { efe: patch }).then(() => { if (c) bancoMov(-c, `Recrutou ${q} marujo${q > 1 ? 's' : ''} para completar o efetivo`); const E = nvEfetivo();
+    toast(`<b>+${q} marujo${q > 1 ? 's' : ''}</b> nas funções.${E && E.cheio ? ` <b>Passou da lotação</b> (${E.tot} de ${E.lot}).` : ''}`, { tipo: E && E.cheio ? '' : 'bom', tempo: 6000 }); }); };
+const NV_FUN_NOME = Object.fromEntries(NV_FUN);
 function nvEfetivoHTML() {
   const m = souMestre(), E = nvEfetivo(), n = navio();
-  if (!E) return m ? `<section class="pap trip-efe"><h2>${ic('mesa:tripulacao', 32)} Funções e efetivo</h2><p class="nota">O livro pede um número mínimo de tripulantes por função, pelo tamanho do navio (LJ p. 300). Ligue para o site conferir e avisar.</p><button class="bt" data-act="tp-efe-ligar">Controlar o efetivo</button></section>` : '';
+  if (!E) return m ? `<section class="pap trip-efe"><h2>${ic('mesa:tripulacao', 32)} Funções e efetivo</h2><p class="nota">O livro pede um número mínimo de tripulantes por função, pelo tamanho do navio (LJ p. 300). Ligue para o site conferir e avisar. Os protagonistas entram pela profissão da ficha; os marujos completam o que faltar.</p><button class="bt" data-act="tp-efe-ligar">Controlar o efetivo</button></section>` : '';
+  const linhaP = p => { const nf = p.fun.length, aviso = nf === 2 ? 'não treina na viagem' : nf >= 3 ? (p.prof ? 'não exerce a profissão' : 'sem tempo para treinar') : '';
+    return `<li class="efe-p"><div class="efe-pn"><b>${esc(p.nome)}</b>${p.prof ? `<small>${esc(p.prof)}</small>` : ''}</div>
+      <div class="efe-chips">${NV_FUN.map(([k, t]) => `<button class="chip ${p.fun.includes(k) ? 'on' : ''}" ${m ? `data-act="tp-fun" data-u="${p.uid}" data-k="${k}" aria-pressed="${p.fun.includes(k)}"` : 'disabled'}>${t.split(' ')[0]}</button>`).join('')}</div>
+      <small class="efe-av ${aviso ? 'ruim' : ''}">${nf ? `${nf === 1 ? '1 função' : nf + ' funções'}${aviso ? ': ' + aviso : ': exerce a função e a profissão'}` : 'sem função fixa'}${m && p.manual ? ` · <button class="link" data-act="tp-fun-auto" data-u="${p.uid}">voltar à profissão</button>` : ''}</small></li>`; };
+  const quem = x => { const ps = x.prot.map(p => `<span class="efe-prot" title="Protagonista">★ ${esc(p.nome)}</span>`).join(''), mm = m ? `<input type="number" min="0" value="${x.mar}" data-chg="tp-efe" data-k="${x.k}" style="width:4.2em" aria-label="Marujos em ${x.n}">` : `<b>${x.mar}</b>`;
+    return `${ps}<span class="efe-mar">${m ? '' : '+ '}${mm}${m ? '' : ' marujo' + (x.mar === 1 ? '' : 's')}</span>`; };
   return `<section class="pap trip-efe"><h2>${ic('mesa:tripulacao', 32)} Funções e efetivo <small>navio ${esc(n.tamanho)} · LJ p. 300</small></h2>
-    <p class="efe-tot">Tripulantes a bordo: ${m ? `<input type="number" min="0" value="${E.tot}" data-chg="tp-efe" data-k="tot" style="width:5em">` : `<b>${E.tot}</b>`} de ${E.lot} que cabem${E.cheio ? ' <b class="ruim">(lotação estourada)</b>' : ''}${E.semCozinha ? ' · <b class="ruim">sem Cozinha: não dá para preparar comida</b>' : ''}</p>
-    <table class="tab efe-tab"><thead><tr><th>Função</th><th>Tem</th><th>Mínimo</th><th>Necessário</th><th>Como está</th></tr></thead><tbody>${E.L.map(x => `<tr class="efe-${x.est}"><td>${x.n}</td>
-      <td>${m ? `<input type="number" min="0" value="${x.tem}" data-chg="tp-efe" data-k="${x.k}" style="width:4.5em" aria-label="${x.n}">` : `<b>${x.tem}</b>`}</td><td>${x.min}</td><td>${x.nec}</td>
-      <td>${x.est === 'ok' ? 'Completo' : `<b>${x.est === 'sem' ? 'Abaixo do mínimo' : 'Só o mínimo'}.</b> ${x.est === 'sem' ? x.sem : x.mn}`}</td></tr>`).join('')}</tbody></table>
-    <p class="nota">Cada pessoa faz até 3 funções e só 1 de comando. Com 2 funções não treina na viagem; com 3, não exerce a profissão (LJ p. 299). Homem das Armas dá +3 nos tiros de canhão.${m ? ' <button class="link" data-act="tp-efe-fim">Desligar</button>' : ''}</p></section>`;
+    <p class="efe-tot">A bordo: ${m ? `<input type="number" min="0" value="${E.tot}" data-chg="tp-efe" data-k="tot" style="width:5em">` : `<b>${E.tot}</b>`} de ${E.lot} que cabem (${E.P.length} protagonista${E.P.length === 1 ? '' : 's'} + ${E.nMar} marujo${E.nMar === 1 ? '' : 's'})${E.cheio ? ' <b class="ruim">(lotação estourada)</b>' : ''}${E.semCozinha ? ' · <b class="ruim">sem Cozinha: não dá para preparar comida</b>' : ''}</p>
+    <div class="efe-resumo ${E.falta ? 'falta' : 'ok'}"><b>${E.falta ? `Faltam ${E.falta} vaga${E.falta > 1 ? 's' : ''} para o mínimo do navio.` : 'O mínimo do navio está coberto.'}</b>
+      Com 1 função cada, os protagonistas cobrem <b>${E.porProt} de ${E.vagas}</b> vagas mínimas${E.vagas > E.porProt ? `; as outras ${E.vagas - E.porProt} ficam para os marujos (quanto maior o navio, mais gente ele pede)` : ' e os marujos ficam de reforço'}.
+      ${m && E.falta ? ' <button class="bt fino ouro" data-act="tp-completar">Completar com marujos</button>' : ''}</div>
+    <h3 class="efe-h">Quem faz o quê <small>protagonistas</small></h3>
+    ${E.P.length ? `<ul class="efe-ps">${E.P.map(linhaP).join('')}</ul>` : '<p class="nota">Nenhum jogador na mesa ainda.</p>'}
+    <table class="tab efe-tab"><thead><tr><th>Função</th><th>Quem faz</th><th>Tem</th><th>Mínimo</th><th>Necessário</th><th>Como está</th></tr></thead><tbody>${E.L.map(x => `<tr class="efe-${x.est}"><td class="efe-fn">${x.n}</td>
+      <td class="efe-q">${quem(x)}</td><td data-l="Tem"><b>${x.tem}</b></td><td data-l="Mínimo">${x.min}</td><td data-l="Necessário">${x.nec}</td>
+      <td class="efe-co">${x.est === 'ok' ? `Completo${x.folga ? ` <small>(+${x.folga} de folga para baixas)</small>` : ''}` : `<b>${x.est === 'sem' ? 'Abaixo do mínimo' : 'Só o mínimo'}.</b> ${x.est === 'sem' ? x.sem : x.mn}`}${x.soProt ? ' <small>Só com protagonistas já basta.</small>' : ''}</td></tr>`).join('')}</tbody></table>
+    <p class="nota">Cada pessoa faz até 3 funções e só 1 de comando. Com 2 funções não treina na viagem; com 3, não exerce a profissão (LJ p. 299). Marujo completa o número que o navio pede, mas quem tem a profissão (cozinheiro, navegador) continua sendo o mestre da função: o teste dela é dele. Homem das Armas dá +3 nos tiros de canhão.${m ? ' <button class="link" data-act="tp-efe-fim">Desligar</button>' : ''}</p></section>`;
 }
 /* ───── a aba Navio ───── */
 function nvEstaleiroHTML(n, c, m) {
@@ -382,4 +427,4 @@ VIEWS.navio.render = function () {
       ${L.length ? `<ol class="nv-hist">${L.slice(0, 20).map(x => `<li><b>${esc(x.quem || '')}</b> ${esc(x.txt)} <small>${hora(x.em)}</small></li>`).join('')}</ol>` : '<p class="nota">Nada mudou ainda.</p>'}</section>
   </div>`;
 };
-if (window.__expor) Object.assign(window, { NV, nvCalc, nvDeModelo, nvOfertas, navio, nvEfetivo });
+if (window.__expor) Object.assign(window, { NV, nvCalc, nvDeModelo, nvOfertas, navio, nvEfetivo, nomeJ, fichaDe, gravarNavio, nvProts });

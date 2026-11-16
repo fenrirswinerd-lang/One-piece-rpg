@@ -188,9 +188,12 @@ ACT['loja-comprar'] = async el => {
 const _lojaMesaAo = VIEWS.mesa.ao;
 VIEWS.mesa.ao = function (ch) { if (ch === 'lojas') { placaLoja(); return false; } return _lojaMesaAo ? _lojaMesaAo.call(this, ch) : undefined; };
 function placaLoja() {
-  let el = $('#mt-loja'); const ab = lojaAberta();
-  if (!ab || App.rota !== 'mesa') { if (el) el.remove(); return; }
-  if (!el) { el = document.createElement('button'); el.id = 'mt-loja'; el.className = 'mt-loja'; el.dataset.act = 'loja-entrar'; document.body.appendChild(el); }
+  /* v30: a loja aberta mora no cabeçalho (antes ficava solta no meio da tela e cobria as janelas da Mesa) */
+  document.querySelectorAll('.mt-loja').forEach(x => x.remove());
+  let el = $('#bt-loja'); const ab = lojaAberta(), alvo = $('.topo-bts');
+  if (!ab || !alvo) { if (el) el.remove(); return; }
+  if (!el) { el = document.createElement('button'); el.id = 'bt-loja'; el.className = 'bt-ic loja-bt'; el.dataset.act = 'loja-entrar'; alvo.prepend(el); }
+  el.title = `Loja aberta: ${ab.nome}. Toque para entrar.`; el.setAttribute('aria-label', `Entrar na loja aberta: ${ab.nome}`);
   el.innerHTML = `${iconeHTML(ab.icone, 32)}<span><small>Loja aberta</small><b>${esc(ab.nome)}</b></span>`;
   carregarArquivos(el);
 }
@@ -201,3 +204,5 @@ App.ir = function (...a) { const r = _irLoja.apply(this, a); setTimeout(placaLoj
 
 /* Lojas entram no menu do mestre, em Preparar */
 (() => { const g = NAV.mestre.find(([t]) => t === 'Preparar'); if (g && !g[1].includes('lojas')) g[1].push('lojas'); })();
+/* o botão da loja vive no cabeçalho: acompanha a loja em qualquer aba e volta se o cabeçalho for refeito */
+Mesa.on(ch => { if (ch === 'lojas' || ch === 'segLojas' || ch === 'estado' || ch === 'mundo') setTimeout(placaLoja, 0); });

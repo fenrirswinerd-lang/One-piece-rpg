@@ -48,7 +48,7 @@ ACT['fr-guardar'] = el => { const f = frota().find(x => x.id === el.dataset.id),
 ACT['fr-missao'] = el => { const f = frota().find(x => x.id === el.dataset.id), c = f && frNums(f); if (!f || !c) return;
   if (frNaBatalha(f)) return toast('Este navio está na Batalha naval. Tire de lá antes de mandar em missão.', { tipo: 'ruim' });
   Modal.abrir(`<h2>${ic('navios:galeao', 32)} Mandar ${esc(f.nome)} em missão</h2>
-    <p class="nota">Regra da casa. O navio some por alguns dias do relógio da Mesa e volta com Berries para o Banco do bando. Na volta, um d20 diz se deu certo.</p>
+    <p class="nota">Regra da casa. O navio some por alguns dias do relógio da Mesa e volta com Berries para o Banco do bando. Na volta, um d20 diz se deu certo. A gente do navio da frota é dele: não sai do efetivo do navio principal, e quem rende é o tamanho do navio.</p>
     <label class="campo-inline">O que vai fazer <input id="frm-oque" maxlength="60" placeholder="uma frase sua: comércio, escolta, recado..." style="width:min(100%,22em)"></label>
     <label class="campo-inline">Dias fora <input id="frm-dias" type="number" min="1" max="60" value="7" style="width:5em"></label>
     <table class="tab fr-rotas"><thead><tr><th></th><th>Rota</th><th>Rende por dia</th><th>Dá problema com</th><th>Se der problema</th></tr></thead><tbody>${Object.entries(FR_RISCO).map(([k, r], i) => `<tr><td><input type="radio" name="frm-risco" value="${k}" id="frm-${k}" ${i === 0 ? 'checked' : ''}></td><td><label for="frm-${k}"><b>${r.n}</b></label></td><td>${nvB(frGanho(c, k, 1))}</td><td>${r.ruim === 1 ? '1 no d20' : `1 a ${r.ruim} no d20`}</td><td>metade dos Berries e −${Math.round(r.dano * 100)}% do PV</td></tr>`).join('')}</tbody></table>
