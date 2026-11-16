@@ -93,10 +93,14 @@ def dados(assets):
         'window.TABGN=' + js(json.loads((D / 'tabelas_gn.json').read_text())) + ';',
         'window.LORE=' + js(json.loads((D / 'lore_notion.json').read_text())) + ';',
         'window.GLOSS=' + js(json.loads((D / 'glossario.json').read_text())) + ';',
+        'window.NOVIDADES=' + js((SRC / 'novidades.md').read_text()) + ';',   # o mesmo texto do UPDATE_LOG_JOGADORES.md
     ])
 
 def catalogo():  # frutas, estilos exclusivos e espécie nova: arquivo à parte, carregado só quando alguém abre o Catálogo
     return 'window.CATALOGO=' + js({'frutas': json.loads((D / 'frutas.json').read_text()), 'extra': json.loads((D / 'catalogo_extra.json').read_text())}) + ';'
+
+def livro():  # texto dos livros para a busca do Pergunte ao livro: arquivo à parte, baixado só na primeira pergunta
+    return 'window.LIVRO=' + js(json.loads((D / 'livro_texto.json').read_text())) + ';'
 
 partes = []
 for p in sorted((SRC / 'app').glob('*.js')):
@@ -114,6 +118,7 @@ arquivos = {
     'fb.js': FB.read_bytes(),
     'config.js': CONFIG.read_bytes(),
     'catalogo.js': catalogo().encode(),
+    'livro.js': livro().encode(),
     'dadofis.js': DADOFIS.read_bytes(),
 }
 for nome, b in arquivos.items():
@@ -135,7 +140,7 @@ index = f'''<!doctype html>
 {tpl}
 <script src="config.js?v={v['config.js']}"></script>
 <script src="fb.js?v={v['fb.js']}"></script>
-<script>window.CATALOGO_URL="catalogo.js?v={v['catalogo.js']}";window.DADOFIS_URL="dadofis.js?v={v['dadofis.js']}";</script>
+<script>window.CATALOGO_URL="catalogo.js?v={v['catalogo.js']}";window.LIVRO_URL="livro.js?v={v['livro.js']}";window.DADOFIS_URL="dadofis.js?v={v['dadofis.js']}";</script>
 <script src="dados.js?v={v['dados.js']}"></script>
 <script src="app.js?v={v['app.js']}"></script>
 </body>
@@ -148,6 +153,8 @@ index = f'''<!doctype html>
 previa = ('<title>Mesa One Piece</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n'
           f'<style>\n{css(True)}\n</style>\n{tpl}\n<script>\n{dados(url_prev)}\n{catalogo().replace("</", "<\\/")}\n</script>\n<script>\n{DADOFIS.read_text().replace("</script", "<\\/script")}\n</script>\n<script>\n{app.replace("</script", "<\\/script")}\n</script>\n')
 (OUT / 'previa.html').write_text(previa)
+# prévia só para teste local (não vai para o Artifact: passa do limite de tamanho): igual, com o texto do livro embutido
+(OUT / 'previa_livro.html').write_text(previa.replace('<script>\nwindow.ASSETS=', '<script>\n' + livro().replace('</', '<\\/') + '\nwindow.ASSETS=', 1))
 
 tot = sum(f.stat().st_size for f in SITE.rglob('*') if f.is_file())
 print('site:', len(list(SITE.rglob('*'))), 'arquivos,', round(tot / 1024), 'KB · prévia:', round((OUT / 'previa.html').stat().st_size / 1024), 'KB')

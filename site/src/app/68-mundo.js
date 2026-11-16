@@ -33,7 +33,7 @@ VIEWS.mundo = {
           <div class="mu-campos"><input value="${esc(i.nome || '')}" placeholder="Nome da ilha" data-chg="mu-ilha" data-id="${i.id}" data-k="nome" aria-label="Nome da ilha">
             <select data-chg="mu-ilha" data-id="${i.id}" data-k="mar" aria-label="Mar">${MARES_ILHA.map(m => `<option ${i.mar === m ? 'selected' : ''}>${m}</option>`).join('')}</select>
             <textarea rows="2" placeholder="O que os jogadores sabem (aparece quando descobrir)" data-chg="mu-ilha" data-id="${i.id}" data-k="resumo">${esc(i.resumo || '')}</textarea>
-            <textarea rows="2" placeholder="Notas do mestre (segredo)" data-chg="mu-ilha" data-id="${i.id}" data-k="nota">${esc(i.nota || '')}</textarea></div>
+            <textarea rows="2" placeholder="Notas do mestre (segredo)" data-chg="mu-ilha" data-id="${i.id}" data-k="nota">${esc(i.nota || '')}</textarea>${chLinhaHTML(i)}</div>
           <div class="mu-bts"><button class="bt ${i.descoberta ? 'bom' : ''} fino" data-act="mu-descobrir" data-id="${i.id}">${ic(i.descoberta ? 'mesa:cadeado_aberto' : 'mesa:cadeado', 32)} ${i.descoberta ? 'Descoberta' : 'Escondida'}</button>
             <button class="bt fino ${s.atual === i.id ? 'azul' : ''}" data-act="mu-atual" data-id="${i.id}">${s.atual === i.id ? 'Estamos aqui' : 'Ir para cá'}</button>
             <span class="mu-ord"><button class="bt-ic mini" data-act="mu-ordem" data-id="${i.id}" data-d="-1" ${k === 0 ? 'disabled' : ''} aria-label="Subir">↑</button><button class="bt-ic mini" data-act="mu-ordem" data-id="${i.id}" data-d="1" ${k === s.ilhas.length - 1 ? 'disabled' : ''} aria-label="Descer">↓</button></span>

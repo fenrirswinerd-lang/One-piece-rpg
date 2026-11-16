@@ -1,6 +1,6 @@
 /* ═══════════ EFETIVO: ligações com Tripulação e Batalha naval ═══════════
    (as funções ficam em 71b-estaleiro.js; aqui só entram nas abas que nascem depois dele) */
-(() => { const v = VIEWS.tripulacao, orig = v.render; v.render = function () { const h = orig.apply(this, arguments); return typeof h === 'string' ? h.replace(/<\/div>\s*$/, nvEfetivoHTML() + mjHTML() + frTripHTML() + '</div>') : h; };
+(() => { const v = VIEWS.tripulacao, orig = v.render; v.render = function () { const h = orig.apply(this, arguments); return typeof h === 'string' ? h.replace(/<\/div>\s*$/, nvEfetivoHTML() + cvHTML() + mjHTML() + frTripHTML() + '</div>') : h; };
   if (v.chaves && !v.chaves.includes('navio')) v.chaves.push('navio'); })();
 
 /* aviso na Batalha naval quando o efetivo não fecha */

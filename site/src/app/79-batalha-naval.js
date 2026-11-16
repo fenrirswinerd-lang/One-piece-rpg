@@ -210,7 +210,7 @@ function bnPainelNavio(b, n) {
         ${mira ? `<p class="bn-mira-info ${mira.ok ? '' : 'ruim'}">${esc(alvo.nome)} está a <b>${Math.round(mira.d)} m</b>, pela <b>${mira.lado}</b> · CR ${alvo.cr + bnProt(alvo)} · BR ${alvo.br}${mira.ok ? '' : ` · <b>não dá para atirar:</b> ${mira.por}. Vire o navio.`}</p>` : ''}`
         : `<p class="nota">${armas.length ? 'Não tem outro navio para mirar.' : 'Este navio não tem arma. Ponha uma em “Ficha do navio”.'}</p>`}
       ${outros.length && n.armas.some(a => a.n === 'Canhão de Energia' && a.q > 0) ? `<div class="linha-bts"><button class="bt ruim fino" data-act="bn-energia">Disparar o Canhão de Energia</button></div>` : ''}
-      ${outros.length ? `<div class="linha-bts"><button class="bt fino" data-act="bn-colisao">Jogar o navio em cima do alvo</button>
+      ${outros.length ? `<div class="linha-bts"><button class="bt fino" data-act="bn-colisao">Jogar o navio em cima do alvo</button>${abBotaoHTML(b, n, alvo)}
         ${n.preso && bnNav(b, n.preso) ? '<button class="bt fino" data-act="bn-soltar">Soltar o arpão (CD 17)</button>' : ''}</div>` : ''}
 
       <h3><i>3</i> Fim do turno ${feito('mov')}</h3>

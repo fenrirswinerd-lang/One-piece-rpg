@@ -4,6 +4,44 @@ O mais novo fica em cima. Se algo não aparecer para você, o mestre ainda não 
 
 ---
 
+## Versão 30
+
+**Inventário puxa a mochila da ficha**
+- O botão **Trazer itens, armas e dinheiro da ficha** agora lê a nota (comentário) da mochila, bolsa ou baú na planilha. Cada item da nota entra **dentro** dela, com o peso em kg que estiver escrito.
+- Se a planilha não tiver nota, use **＋ Colar lista** na mochila: cole a lista (um item por linha ou separado por vírgula) e o site põe dentro.
+- Importar de novo não duplica: o que já está no inventário fica como está.
+
+**Pergunte ao livro lê o livro**
+- Além das regras prontas, agora aparecem **trechos do Livro do Jogador** com o número da página. Clique em **ler a página inteira** para ver o texto todo.
+
+**Mesa**
+- Os retratos na roda da Mesa ficam centralizados e do tamanho certo em qualquer tela. No Palco (tela cheia), os assentos crescem junto com a tela.
+
+**Diário de bordo**
+- O texto do mestre marcado como **Resumo da sessão** ganha um selo, para achar fácil o que aconteceu.
+
+**Sua lore**
+- Na aba Personagem, o site não inventa resumo da sua lore. Ele mostra **Pontos do texto** (começo, fim e os marcos de tempo) e os **nomes que mais aparecem**. Quem conta a história é você e o mestre.
+
+**Na tela de todos**
+- **Título**: o mestre pode pôr o nome do arco ou do episódio na tela, como abertura de anime.
+- **Chegada na ilha**: quando o bando chega numa ilha, aparece a arte da ilha (ou o ícone dela) com o nome.
+
+**Tripulação: recursos do convés** (só quando o mestre desbloquear)
+- **Moral do convés**: de 0 a 10, o ânimo dos marujos. Todo mundo vê.
+- **Marujo que vira gente**: marujos com rosto ganham feitos (estrelas).
+- **Abordagem**: na Batalha naval, vocês veem a luta dos marujos no convés inimigo, rodada a rodada.
+- **Rota fixa**: um navio da frota repete a missão sozinho.
+
+**Menu mais curto**
+- O menu tem menos abas. **Navio** e **Banco do bando** abrem por botões no topo da **Tripulação**; **Procurados**, no topo do **Jornal**; **Catálogo**, no topo do **Pergunte ao livro**.
+- Prefere o menu completo? Clique no seu retrato (canto de cima) e escolha **Abas do menu: Todas**.
+
+**Novidades**
+- Esta janela. Ela aparece uma vez a cada versão nova. Para ver de novo, clique no seu retrato (canto de cima) e em **Novidades**.
+
+---
+
 ## Versão 29
 
 **Batalha naval: agora você tem um posto**

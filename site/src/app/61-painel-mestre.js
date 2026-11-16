@@ -1,5 +1,5 @@
 /* ═══════════ painel do mestre na tela da mesa: quadro, música, efeitos, tempo, comando e liberar ═══════════ */
-const AVISOS_SOM = [['recompensa', 'Cartaz de recompensa'], ['jornal', 'Chegou o jornal (gaivota)'], ['tesouro', 'Tesouro encontrado'], ['liberado', 'Categoria liberada'], ['ilha', 'Ilha descoberta'], ['mar', 'Evento do mar'], ['texto', 'Den Den Mushi (recado)'], ['npc', 'Novo encontro'], ['loja', 'Loja aberta']];
+const AVISOS_SOM = [['recompensa', 'Cartaz de recompensa'], ['jornal', 'Chegou o jornal (gaivota)'], ['tesouro', 'Tesouro encontrado'], ['liberado', 'Categoria liberada'], ['ilha', 'Ilha descoberta'], ['mar', 'Evento do mar'], ['texto', 'Den Den Mushi (recado)'], ['npc', 'Novo encontro'], ['loja', 'Loja aberta'], ['titulo', 'Título na tela'], ['chegada', 'Chegada na ilha']];
 const CATS = { imagem: 'Imagens', trilha: 'Trilhas', sfx: 'Efeitos', foto: 'Fotos dos jogadores', pdf: 'Lore em PDF', icone: 'Ícones' };
 const LIM_CAT = { imagem: 12e6, trilha: 15e6, sfx: 3e6, foto: 8e6, pdf: 8e6, icone: 4e6 };
 const espacoUsado = () => (M.arquivos || []).reduce((a, x) => a + (x.tam || 0), 0) + 3 * 1048576;   // + ~3 MB das fichas, diários e estado
@@ -94,7 +94,8 @@ const PainelMestre = {
       <p class="pm-sub">Liberar para os jogadores</p>
       <div class="chips">${Object.entries(TRANCAVEIS).map(([k, t]) => `<button class="chip ${lib[k] ? 'on' : ''}" data-act="pm-liberar" data-k="${k}">${ic(lib[k] ? 'mesa:cadeado_aberto' : 'mesa:cadeado', 32)} ${t}</button>`).join('')}</div>
       <p class="pm-sub">Den Den Mushi: aviso para todos</p>
-      <div class="pm-linha"><input id="pm-aviso" class="cresce" placeholder="Ex.: Um navio da Marinha surge no horizonte!" maxlength="140" data-enter="pm-aviso"><button class="bt" data-act="pm-aviso">${ic('mesa:denden', 32)} Avisar</button></div>`;
+      <div class="pm-linha"><input id="pm-aviso" class="cresce" placeholder="Ex.: Um navio da Marinha surge no horizonte!" maxlength="140" data-enter="pm-aviso"><button class="bt" data-act="pm-aviso">${ic('mesa:denden', 32)} Avisar</button></div>
+      ${titPainelHTML()}`;
   }
 };
 

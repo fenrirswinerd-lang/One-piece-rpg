@@ -11,6 +11,11 @@ este arquivo, não os de `docs/`).
   por `site/build.py`, gerando um único arquivo para o site (Netlify) e uma prévia
   autocontida.
 - `site/firestore.rules` — regras do Firebase.
+- `site/src/novidades.md` — patch notes que os jogadores leem dentro do site (janela "Novidades").
+  É o mesmo texto de `docs/UPDATE_LOG_JOGADORES.md`. Versão nova: escreva "## Versão N" no topo e rode o build.
+- `site/tools/` — scripts que geram os dados do site a partir dos PDFs. `livro_texto.py` gera
+  `data/livro_texto.json` (texto do LJ, GN e MI, página por página), que o build transforma em `livro.js`
+  (baixado só na primeira pergunta do "Pergunte ao livro"). Os PDFs e a pasta `data/` não estão no repositório.
 - `docs/` — planos, logs de cada versão e anotações soltas, na íntegra (ver índice
   abaixo). Nem tudo é lore oficial: vira oficial só quando o Fenrir confirmar.
 - `fontes/` — texto extraído dos PDFs/.docx oficiais do sistema (livros, frutas,
@@ -34,31 +39,33 @@ este arquivo, não os de `docs/`).
   Piece sem ele precisar pesquisar, e dar faíscas para vilões/sessões. As decisões
   e o processo criativo são dele.
 
-## Estado atual (v29)
-- Batalha naval com postos para jogadores (leme, canhões, homem das armas, reparos,
-  proteger o navio, vigia/convés).
-- Frota do bando: navios sem ficha, missões (regra da casa, não é do livro — ver
-  `docs/LOG_V29_POSTOS_FROTA_MARUJOS.md`), retorno pelo relógio da Mesa.
-  Decisão confirmada: o bando pode ter frotas que rendem recursos de forma passiva
-  (como Kid e Barba Branca), mas continua protagonista da história.
-- Marujos: tripulação figurante sem ficha, pode ganhar nome/rosto quando fixado.
-- Banco do bando e navio por peças (v28).
-- Corrigido na v29: janelas que só cresciam, modificador de dado em tela cheia,
-  menu do jogador com abas inacessíveis, overflow em telas pequenas.
+## Estado atual (v30)
+- **Inventário**: "Trazer da ficha" lê a nota (comentário) da mochila na planilha (baixa o .xlsx pelo link)
+  e põe os itens dentro do recipiente, com peso. Plano B: "＋ Colar lista" em cada recipiente.
+- **Pergunte ao livro**: além das regras prontas, busca no texto inteiro dos livros (sem IA, custo zero).
+  Mestre: LJ + GN + MI. Jogador: só LJ. Código em `site/src/app/81b-livro-texto.js`.
+- **Lore do jogador**: o site não resume mais (o resumo automático inventava fato). Mostra "Pontos do texto"
+  e os nomes que mais aparecem. Resumo de verdade: a IA faz no chat, a partir do PDF.
+- **Diário de bordo**: o mestre edita o que publicou e marca "Resumo da sessão" (selo).
+- **Recursos do convés** (regras da casa, desbloqueáveis em Tripulação; `79f-conves.js`): moral do convés,
+  marujo que vira gente (feitos), abordagem na Batalha naval, rota fixa da frota.
+- **Título na tela** (arco/episódio) e **chegada na ilha** com a arte escolhida ou o ícone (`61b-cinema.js`).
+- **Menu do jogador enxuto**: Navio/Banco dentro de Tripulação, Procurados dentro de Jornal, Catálogo dentro
+  de Pergunte ao livro (abas irmãs, `98-irmas.js`). "Abas do menu: Todas" volta o menu completo.
+- **Novidades**: faixa uma vez por versão; depois pelo menu da conta (`98-zy-novidades.js`).
+- Já existia (v28–v29): Batalha naval com postos, frota com missões, marujos sem ficha, Banco do bando,
+  navio por peças. Decisão confirmada: o bando pode ter frotas que rendem de forma passiva (Kid, Barba Branca),
+  mas continua protagonista.
 
 ## Pendências conhecidas
-- Nunca testado com Firebase de verdade (só modo de teste).
-- Resumo da sessão 1: o Fenrir escreve, a IA não inventa.
-- Revisão/enxugamento de abas repetidas (esconder, não apagar).
-- Desbloqueáveis dentro da Batalha naval/Tripulação: abordagem, moral do convés,
-  marujo que vira gente marcante.
-- Separar motor (abas, Mesa, dados, Banco, janelas) do conteúdo (regras OP RPG),
-  pensando em reaproveitar a base para outros sistemas no futuro.
+- Nunca testado com Firebase de verdade (só modo de teste). A leitura da nota da mochila pelo link do Google
+  não pôde ser testada de dentro do chat.
+- Números da abordagem e da rota fixa: ponto de partida, não regra do livro.
+- Separar motor (abas, Mesa, dados, Banco, janelas) do conteúdo (regras OP RPG), pensando em outros sistemas.
+- Homebrew em PDF para o Discord (só quando o Fenrir pedir).
 - Submarino (LJ p. 318): não existe ainda.
-- Lore dos jogadores: resumos de PDF anexado são feitos pela IA, à mão, um por vez
-  — o resumo automático do site (`resumir()` em `site/src/app/66-jogador.js`) é só
-  um apanhado das frases mais repetidas, não lê sentido, e pode citar mentira de um
-  personagem como se fosse fato. Não confiar nele para lore.
+- Lore dos jogadores: só a do Roman está em `fontes/lore/`. Resumos são feitos pela IA, no chat, um por vez.
+- Mais frutas: o Fenrir ainda vai anexar.
 
 ## Índice de `fontes/`
 - `fontes/livros/livro-do-jogador-2.1.md` — Livro do Jogador (LJ 2.1), regra base.
@@ -98,7 +105,7 @@ Planos e prompts:
 
 Logs de versão (o que mudou, como testar, o que ficou pendente):
 `LOG_V25_DADOS_E_MESA.md`, `LOG_V26_RODA_DA_MESA.md`, `LOG_V27_PIXEL_ART.md`,
-`LOG_V28_BANCO_E_ESTALEIRO.md`, `LOG_V29_POSTOS_FROTA_MARUJOS.md`.
+`LOG_V28_BANCO_E_ESTALEIRO.md`, `LOG_V29_POSTOS_FROTA_MARUJOS.md`, `LOG_V30_FINAL.md` (o mais novo).
 
 Logs de teste específicos: `LOG_FABLE_BLOCO1.md`, `LOG_FABLE_COMPLETO.md`,
 `LOG_NAVAL_VIVA.md`, `LOG_RETRATO_PDN_V22.md`, `LOG_SOM_E_LEGIBILIDADE.md`,

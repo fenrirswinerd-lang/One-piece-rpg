@@ -4,23 +4,73 @@ const ABA = { VA: 'Valores', ES: 'Estilo de Combate', AK: 'Akuma no Mi', PE: 'Pe
 const colNum = s => s.split('').reduce((a, c) => a * 26 + c.charCodeAt(0) - 64, 0);
 const colLetra = n => { let s = ''; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
 
-/* anotação em forma de lista → itens. Uma linha por item; peso opcional ("kit de cozinha- 4kg", "2x corda 3 kg", "roupa de gala 1kg").
-   Linha comprida (texto corrido) não é lista: aí devolve vazio e a anotação vira só nota. */
+/* anotação em forma de lista → itens. Formatos que aparecem nas fichas de verdade:
+     · uma linha por item, peso opcional: "kit de cozinha- 4kg", "2x corda 3 kg", "roupa de gala 1kg", "frasco 3"
+     · tudo numa linha só, com vírgula: "corda 3kg, 2 tochas, lanterna 0,5kg"
+     · tudo numa linha só, com número na frente: "01 KIT MEDICO 03 PRIMEIRO SOCORRO"
+     · anotação explicada com uma linha "Dentro: kit médico, 3 kits de primeiros socorros e os livros"
+   Texto corrido (regra copiada) não é lista: devolve vazio e a anotação vira só nota. */
 const recipNome = nm => /mochila|bolsa|saco(?! de dormir)|ba[uú]\b|algibeira|cesto|caixa|maleta/i.test(nm || '');
+const NOTA_DENTRO = /^(?:(?:o que )?(?:tem |vai |fica )?dentro(?: d[aeo] \S+)?|cont[eé]m|conte[uú]do|itens|tem|leva|n[ao] (?:mochila|bolsa|saco|ba[uú])|guarda(?:d[oa]s?)?)\s*[:=]\s*/i;
+function cortaLista(s) {   // corta em ; e em vírgula, menos a vírgula de número ("1,5kg")
+  const o = []; let a = '';
+  for (let k = 0; k < s.length; k++) { const c = s[k]; if (c === ';' || (c === ',' && !(/\d/.test(s[k - 1] || '') && /\d/.test(s[k + 1] || '')))) { o.push(a); a = ''; } else a += c; }
+  o.push(a); return o;
+}
+function itemDaNota(l) {
+  l = String(l).replace(/^[^a-zà-ú0-9(]+/i, '').trim(); if (!l) return null;
+  let peso = null, qtd = 1;
+  const mk = l.match(/\(?\s*(\d+(?:[.,]\d+)?)\s*(kgs?|quilos?|kilos?|gramas?|g)\b\.?(?:\s*(?:cada|cd|un)\b\.?)?\s*\)?/i);
+  if (mk) { peso = parseFloat(mk[1].replace(',', '.')); if (/^g/i.test(mk[2])) peso = Math.round(peso) / 1000; l = l.replace(mk[0], ' ').trim(); }
+  let m;
+  if ((m = l.match(/^(\d{1,3})\s*[x×]\s*(?=\S)/i)) || (m = l.match(/^(\d{1,3})\s+(?=\S)/)) || (m = l.match(/^[x×]\s*(\d{1,3})\s+/i))) { qtd = +m[1]; l = l.slice(m[0].length); }
+  else if ((m = l.match(/\s*[x×]\s*(\d{1,3})\s*$/i)) || (m = l.match(/\s*\(\s*[x×]?\s*(\d{1,3})\s*\)\s*$/)) || (m = l.match(/\s+(\d{1,3})\s*(?:un|und|unid|unidades?)\.?\s*$/i))) { qtd = +m[1]; l = l.slice(0, m.index); }
+  else if ((m = l.match(/^(.*[a-zà-ú)])\s+(\d{1,2})\s*$/i))) { qtd = +m[2]; l = m[1]; }
+  l = l.replace(/^(?:os|as|o|a|uns|umas|um|uma)\s+/i, '').replace(/\(\s*\)/g, ' ');
+  let nome = l.replace(/[\s,;:.\-–—·]+$/g, '').replace(/^[\s,;:.\-–—·]+/g, '').replace(/\s+/g, ' ').trim();
+  if (!nome || !/[a-zà-ú]/i.test(nome)) return null;
+  if (nome === nome.toUpperCase() && nome.length > 3) nome = nome.charAt(0) + nome.slice(1).toLowerCase();   // "KIT MEDICO" → "Kit medico"
+  return { nome: nome.slice(0, 50), qtd: Math.max(1, qtd || 1), peso };
+}
 function conteudoNota(txt) {
-  const linhas = String(txt || '').split(/\r?\n|;/).map(l => l.trim()).filter(Boolean);
-  if (!linhas.length || linhas.some(l => l.length > 70)) return [];
-  const o = [];
-  for (let l of linhas) {
-    l = l.replace(/^[-•*·–—\s]+/, '');
-    const mk = l.match(/(\d+(?:[.,]\d+)?)\s*(kg|quilos?)\b/i); let peso = null;
-    if (mk) { peso = parseFloat(mk[1].replace(',', '.')); l = l.replace(mk[0], ' '); }
-    let qtd = 1; const mq = l.match(/^(\d+)\s*x?\s+/i) || l.match(/\s[x×]\s*(\d+)\s*$/i) || l.match(/\((\d+)\)\s*$/);
-    if (mq) { qtd = +mq[1]; l = l.replace(mq[0], ' '); }
-    const nome = l.replace(/[\s,;:.\-–—]+$/g, '').replace(/^[\s,;:.\-–—]+/g, '').replace(/\s+/g, ' ').trim();
-    if (nome) o.push({ nome, qtd, peso });
+  /* "\t-Fulano" é a assinatura que o Google põe quando a anotação é um comentário: não é item */
+  let linhas = String(txt || '').replace(/\r/g, '').split('\n').filter(l => !/^\t+\s*-\s*\S/.test(l)).map(l => l.trim());
+  const temLetra = l => /[a-zà-ú]/i.test(l);
+  let marcado = false; const iD = linhas.findIndex(l => NOTA_DENTRO.test(l));
+  if (iD >= 0) {   // "Dentro: ..." vale só o que vem depois, até a próxima linha de enfeite ou de página do livro
+    marcado = true; linhas = linhas.slice(iD); linhas[0] = linhas[0].replace(NOTA_DENTRO, '');
+    const fim = linhas.findIndex((l, k) => k > 0 && (!temLetra(l) || /^(?:📖|lj\b|gn\b|mi\b|p\.\s*\d|comporta|cabe\b)/i.test(l))); if (fim > 0) linhas = linhas.slice(0, fim);
   }
-  return o;
+  linhas = linhas.filter(temLetra); if (!linhas.length) return [];
+  if (!marcado && linhas.some(l => / · |[.!?]\s+[A-ZÀ-Ú]/.test(l) || /^[^:]{2,30}:\s+\S/.test(l))) return [];   // ficha explicada ou regra copiada
+  const pedacos = [];
+  for (const l of linhas) {
+    let ps = cortaLista(l).map(x => x.trim()).filter(temLetra);
+    if (ps.length && (marcado || ps.length > 1)) { const u = ps.pop(); ps.push(...u.split(/\s+e\s+(?=\S)/i)); }   // "a, b e c"
+    ps.forEach(pc => { /* "01 KIT MEDICO 03 PRIMEIRO SOCORRO": número abre item novo (menos se for peso) */
+      if (/^\d{1,3}\s*[x×]?\s+\D/i.test(pc)) pedacos.push(...pc.split(/\s+(?=\d{1,3}\s*[x×]?\s+(?!kgs?\b|quilos?\b|kilos?\b|gramas?\b|g\b|un\b|und\b|unid)[a-zà-ú])/i)); else pedacos.push(pc); });
+  }
+  if (!marcado && pedacos.some(x => x.length > 60 || x.split(/\s+/).length > 8)) return [];   // texto corrido
+  return pedacos.filter(x => x.length <= 80).map(itemDaNota).filter(Boolean);
+}
+/* dois nomes são o mesmo item? Sem acento, sem "de/do/da", singular, e aceita um erro de letra ("primero socorro" = "Primeiros Socorros").
+   O nome mais curto pode ser um pedaço do mais comprido ("livros" = "Livros de Médico"), desde que não seja palavra genérica. */
+const ITEM_PARE = new Set('de do da dos das o a os as um uma e para pra com em no na p'.split(' ')), ITEM_GEN = new Set('kit caixa frasco saco garrafa pote rolo roupa item coisa livro'.split(' '));
+function chaveItem(nome) {
+  return String(nome || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\([^)]*\)/g, ' ').split(/[^a-z0-9]+/).filter(w => w && !ITEM_PARE.has(w))
+    .map(w => w.length > 3 ? w.replace(/oes$/, 'ao').replace(/aes$/, 'ao').replace(/([^s])s$/, '$1') : w);
+}
+function quaseIgual(a, b) {
+  if (a === b) return true; if (Math.abs(a.length - b.length) > 1 || Math.min(a.length, b.length) < 5) return false;
+  let i = 0, j = 0, erros = 0;
+  while (i < a.length && j < b.length) { if (a[i] === b[j]) { i++; j++; continue; } if (++erros > 1) return false; if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; } }
+  return erros + (a.length - i) + (b.length - j) <= 1;
+}
+function mesmoItem(a, b) {
+  let ta = chaveItem(a), tb = chaveItem(b); if (!ta.length || !tb.length) return false;
+  if (ta.length > tb.length) [ta, tb] = [tb, ta];
+  if (!ta.every(w => tb.some(v => quaseIgual(w, v)))) return false;
+  return ta.length === tb.length || ta.length >= 2 || (ta[0].length >= 5 && !ITEM_GEN.has(ta[0])) || (ta[0] === 'livro' && tb.length <= 3);
 }
 function parseFicha(raw) {
   const g = (a, c) => { const v = (raw[ABA[a]] || {})[c]; return v === undefined ? null : v; };
@@ -56,7 +106,7 @@ function parseFicha(raw) {
   /* a anotação do item (passe o mouse na planilha) vira nota; se for uma lista, vira o que está DENTRO dele (ex.: a mochila) */
   const nota = (a, c) => ((raw.__notas || {})[ABA[a]] || {})[c] || '';
   const invFicha = () => { const o = []; for (let r = 5; r <= 18; r++) { const nm = t('PE', 'AC' + r).trim(); if (!nm) continue;
-    const nt = nota('PE', 'AC' + r), it = { nome: nm, qtd: n('PE', 'AM' + r) ?? 1, peso: n('PE', 'AN' + r) || 0 };
+    const nt = ['AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN'].map(c => nota('PE', c + r)).filter(Boolean).join('\n'), it = { nome: nm, qtd: n('PE', 'AM' + r) ?? 1, peso: n('PE', 'AN' + r) || 0 };
     if (nt) { const d = conteudoNota(nt); if (d.length >= 2 || (d.length && recipNome(nm))) it.dentro = d; else it.nota = nt.replace(/\s+/g, ' ').slice(0, 200); }
     o.push(it); } return o; };
   return {
@@ -214,7 +264,23 @@ function gviz(id, aba, faixa) {
   });
 }
 async function emLotes(itens, n, fn) { let i = 0; const trab = async () => { while (i < itens.length) { const k = i++; await fn(itens[k], k); } }; await Promise.all(Array.from({ length: n }, trab)); }
-async function lerLink(link, aoAndar) {
+/* anotações pelo link: o gviz não manda anotação, então o site tenta baixar a planilha inteira em .xlsx (só funciona com a ficha
+   aberta para "qualquer pessoa com o link") e tira de lá só as anotações. Se o Google recusar, segue sem elas, como antes.
+   Guarda por 10 minutos para não baixar a cada leitura automática; se falhar, usa as últimas que vieram. */
+const NOTAS_LINK = {};
+async function notasDoLink(id, forcar) {
+  const c = NOTAS_LINK[id], agora = Date.now();
+  if (c && !forcar && agora - c.em < 600000) return c.notas;
+  if (IN_CLAUDE || typeof fetch !== 'function' || typeof AbortController === 'undefined') return c ? c.notas : null;
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 20000);
+  try {
+    const r = await fetch(`https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`, { signal: ac.signal, credentials: 'omit', redirect: 'follow' });
+    if (!r.ok) throw new Error('recusado');
+    const raw = await lerXlsx(await r.arrayBuffer());
+    NOTAS_LINK[id] = { em: agora, notas: raw.__notas || {} }; return NOTAS_LINK[id].notas;
+  } catch (e) { NOTAS_LINK[id] = { em: agora, notas: c ? c.notas : null }; return NOTAS_LINK[id].notas; } finally { clearTimeout(t); }
+}
+async function lerLink(link, aoAndar, opts = {}) {
   const id = idDoLink(link); if (!id) throw new Error('Link inválido. Cole o link da planilha (docs.google.com/spreadsheets/d/...).');
   const tarefas = []; Object.entries(BLOCOS).forEach(([aba, fx]) => fx.forEach(f => tarefas.push([aba, f])));
   const raw = {}, falhas = [], cont = { n: 0 }; let feitos = 0;
@@ -229,7 +295,8 @@ async function lerLink(link, aoAndar) {
   if (falhas.length) throw new Error(falhas[0].split(': ').slice(1).join(': '));
   await emLotes(tarefas.slice(1), 6, um);
   if (falhas.length === tarefas.length) throw new Error(falhas[0].split(': ').slice(1).join(': '));
-  return { raw, falhas, total: tarefas.length, pedidos: cont.n };
+  const notas = await notasDoLink(id, !opts.silencioso); if (notas) raw.__notas = notas;
+  return { raw, falhas, total: tarefas.length, pedidos: cont.n, notas: !!notas };
 }
 
 /* ───── aplicar ficha lida ao grupo ───── */
@@ -253,8 +320,8 @@ const Sync = {
     if (!pc.link) return;
     pc.sync = { estado: 'lendo', p: 0 }; if (!silencioso) Store.emit();
     try {
-      const r = await lerLink(pc.link, (a, b) => { pc.sync = { estado: 'lendo', p: Math.round(100 * a / b) }; if (!silencioso) atualizarSync(pc); });
-      Store.set(s => { const alvo = s.party.find(x => x.id === pc.id); if (alvo) { aplicarFicha(alvo, r.raw, 'link'); alvo.sync = { estado: r.falhas.length ? 'parcial' : 'ok', falhas: r.falhas, pedidos: r.pedidos, em: Date.now() }; } },
+      const r = await lerLink(pc.link, (a, b) => { pc.sync = { estado: 'lendo', p: Math.round(100 * a / b) }; if (!silencioso) atualizarSync(pc); }, { silencioso });
+      Store.set(s => { const alvo = s.party.find(x => x.id === pc.id); if (alvo) { aplicarFicha(alvo, r.raw, 'link'); alvo.sync = { estado: r.falhas.length ? 'parcial' : 'ok', falhas: r.falhas, pedidos: r.pedidos, notas: r.notas, em: Date.now() }; } },
         silencioso ? null : `Ficha atualizada: ${nomePC(pc)}`, { semDesfazer: true });
     } catch (e) {
       pc.sync = { estado: 'erro', msg: e.message, em: Date.now() }; Store.emit();

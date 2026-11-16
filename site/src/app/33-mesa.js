@@ -195,7 +195,9 @@ ACT['eu-menu'] = () => {
       <button class="bt fino ${PrefNav.lado() ? '' : 'on'}" data-act="nav-lado" data-v="0">Em cima</button>
       <button class="bt fino ${PrefNav.lado() ? 'on' : ''}" data-act="nav-lado" data-v="1">Do lado</button></div>
     <p class="nota">Do lado, cada grupo do menu fecha com um clique no nome dele. Vale só para você.</p>
-    <div class="modal-bts"><button class="bt fino" data-act="atalhos">Atalhos do teclado (?)</button>${Eu.mestre ? `<button class="bt" data-act="eu-trocar">${souMestre() ? 'Entrar como jogador' : 'Entrar como mestre'}</button>` : ''}<button class="bt fino" data-act="s-sair">Sair da conta</button></div>`);
+    ${!souMestre() ? `<h3>Abas do menu</h3><div class="pref-todas linha-bts"><button class="bt fino ${PrefNav.todas && PrefNav.todas() ? '' : 'on'}" data-act="nav-todas" data-v="0">Enxutas</button><button class="bt fino ${PrefNav.todas && PrefNav.todas() ? 'on' : ''}" data-act="nav-todas" data-v="1">Todas</button></div>
+    <p class="nota">Enxutas: Navio e Banco abrem por dentro da Tripulação, Procurados pelo Jornal, Catálogo pelo Pergunte ao livro.</p>` : ''}
+    <div class="modal-bts"><button class="bt fino" data-act="novidades">Novidades</button><button class="bt fino" data-act="atalhos">Atalhos do teclado (?)</button>${Eu.mestre ? `<button class="bt" data-act="eu-trocar">${souMestre() ? 'Entrar como jogador' : 'Entrar como mestre'}</button>` : ''}<button class="bt fino" data-act="s-sair">Sair da conta</button></div>`);
 };
 ACT['eu-estilo'] = async el => {
   const k = el.dataset.e; Eu.estilo = k;

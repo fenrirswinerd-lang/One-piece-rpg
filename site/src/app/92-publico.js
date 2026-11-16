@@ -3,21 +3,33 @@ VIEWS.bordo = {
   titulo: 'Diário de bordo', icone: 'mesa:diario', chaves: ['bordo', 'capDiario', 'capPriv', 'trip', 'estado'],
   render() {
     const L = M.bordo || [], C = M.capDiario || [], miro = miroEmbed((M.estado.bordoMiro || ''));
-    return `<div class="bordo-v"><header class="di-cab">${ic('capas2:bordo', 128)}<div><h1>Diário de bordo</h1><p class="nota">O que a tripulação viveu, sessão por sessão. ${souMestre() ? 'Você escreve aqui e gera o resumo da sessão sozinho.' : 'O mestre escreve aqui; o capitão publica o diário dele ao lado.'}</p>
+    return `<div class="bordo-v"><header class="di-cab">${ic('capas2:bordo', 128)}<div><h1>Diário de bordo</h1><p class="nota">O que a tripulação viveu, sessão por sessão. ${souMestre() ? 'Você escreve o resumo da sessão aqui (ou parte do rascunho que o site monta) e pode editar depois. Os jogadores só leem.' : 'O mestre escreve aqui o resumo de cada sessão; o capitão publica o diário dele ao lado.'}</p>
       <button class="bt fino" data-act="bd-pdf">${ic('modos:lore_pdf', 32)} Baixar em PDF</button></div></header>
       ${souMestre() ? `<section class="pap bordo-novo"><input id="bd-tit" placeholder="Título (ex.: Sessão 3 · Fuga de Mary Geoise)" maxlength="90"><textarea id="bd-txt" rows="4" placeholder="O que aconteceu…"></textarea>
-        <div class="linha-bts"><button class="bt bom" data-act="bd-add">Publicar no diário</button><button class="bt" data-act="bd-resumo">${ic('modos:anotar', 32)} Gerar resumo da sessão</button>
+        <div class="linha-bts"><button class="bt bom" data-act="bd-add">Publicar no diário</button><label class="campo-inline" title="Marca este registro como o resumo da sessão, para os jogadores acharem fácil"><input type="checkbox" id="bd-res"> é o resumo da sessão</label><button class="bt" data-act="bd-resumo">${ic('modos:anotar', 32)} Gerar resumo da sessão</button>
         <input id="bd-miro" class="cresce" placeholder="Quadro do Miro da mesa (opcional)" value="${esc(M.estado.bordoMiro || '')}"><button class="bt fino" data-act="bd-miro">Salvar Miro</button></div></section>` : ''}
       <div class="bordo-grade"><section class="bordo-l">${L.length ? L.map(e => `<article class="bordo-e ${e.tipo === 'resumo' ? 'resumo' : ''}"><header><h2>${esc(e.titulo || 'Registro')}</h2><time>${esc(e.dia || '')} · ${new Date(e.em).toLocaleDateString('pt-BR')}</time>
-          ${souMestre() ? `<button class="link" data-act="bd-tirar" data-id="${e.id}">apagar</button>` : ''}</header><div class="pre">${esc(e.txt)}</div></article>`).join('') : '<p class="nota">Nenhum registro ainda.</p>'}</section>
+          ${souMestre() ? `<button class="link" data-act="bd-editar" data-id="${e.id}">editar</button> <button class="link" data-act="bd-tirar" data-id="${e.id}">apagar</button>` : ''}</header>${e.tipo === 'resumo' ? '<p class="bordo-selo">Resumo da sessão</p>' : ''}<div class="pre">${esc(e.txt)}</div>${e.editadoEm ? `<p class="nota">Editado em ${new Date(e.editadoEm).toLocaleDateString('pt-BR')}</p>` : ''}</article>`).join('') : '<p class="nota">Nenhum registro ainda.</p>'}</section>
         <aside class="bordo-cap"><div class="pap"><h2>${ic('modos:capitao', 32)} Diário do capitão</h2>${C.length ? `<ol class="di-l">${C.slice(0, 20).map(e => `<li><header><b>${esc(e.titulo || e.autor || '')}</b><time>${esc(e.dia || '')}${e.titulo && e.autor ? ' · ' + esc(e.autor) : ''}</time></header><p class="pre">${esc(e.txt)}</p></li>`).join('')}</ol>` : '<p class="nota">O capitão do bando (definido na Tripulação) escreve pela aba Personagem e publica aqui o que quiser.</p>'}</div>${capPrivMestreHTML()}</aside></div>
       ${miro ? `<section class="pap"><h2>${ic('modos:quadro', 32)} Quadro da mesa</h2><div class="miro"><iframe src="${esc(miro)}" title="Quadro do Miro da mesa" allowfullscreen loading="lazy"></iframe></div></section>` : ''}</div>`;
   }
 };
 ACT['bd-add'] = async () => {
   const txt = $('#bd-txt').value.trim(); if (!txt) return toast('Escreva o registro.');
-  const r = Relogio.agora(); await DB.novo('mesa/bordo/entradas', { titulo: $('#bd-tit').value.trim(), txt, em: Date.now(), dia: `Dia ${r.dia}`, sessao: sessaoInfo().n, tipo: 'nota' });
+  const r = Relogio.agora(); await DB.novo('mesa/bordo/entradas', { titulo: $('#bd-tit').value.trim(), txt, em: Date.now(), dia: `Dia ${r.dia}`, sessao: sessaoInfo().n, tipo: ($('#bd-res') || {}).checked ? 'resumo' : 'nota' });
   $('#bd-txt').value = ''; $('#bd-tit').value = ''; toast('Publicado.', { tipo: 'bom' });
+};
+/* o mestre corrige um registro já publicado (título, texto e se é o resumo da sessão) */
+ACT['bd-editar'] = el => {
+  const e = (M.bordo || []).find(x => x.id === el.dataset.id); if (!e) return;
+  Modal.abrir(`<h2>Editar registro</h2><label class="campo"><span>Título</span><input id="be-tit" maxlength="90" value="${esc(e.titulo || '')}"></label>
+    <label class="campo"><span>Texto</span><textarea id="be-txt" rows="14">${esc(e.txt || '')}</textarea></label>
+    <label class="campo-inline"><input type="checkbox" id="be-res" ${e.tipo === 'resumo' ? 'checked' : ''}> Este é o resumo da sessão (fica marcado para os jogadores)</label>
+    <div class="modal-bts"><button class="bt bom" id="be-ok">Salvar</button><button class="bt" data-act="modal-fechar">Cancelar</button></div>`,
+  { classe: 'larga', onBind: m => m.querySelector('#be-ok').addEventListener('click', async () => {
+    const txt = m.querySelector('#be-txt').value.trim(); if (!txt) return toast('O texto não pode ficar vazio.');
+    await DB.gravar('mesa/bordo/entradas/' + e.id, { titulo: m.querySelector('#be-tit').value.trim(), txt, tipo: m.querySelector('#be-res').checked ? 'resumo' : 'nota', editadoEm: Date.now() });
+    Modal.fechar(); toast('Registro atualizado.', { tipo: 'bom' }); }) });
 };
 ACT['bd-tirar'] = el => confirmar('Apagar este registro do diário de bordo?', () => DB.apagar('mesa/bordo/entradas/' + el.dataset.id), { perigo: true });
 ACT['bd-miro'] = () => { const u = $('#bd-miro').value.trim(); if (u && !miroEmbed(u)) return toast('Esse link não parece de um quadro do Miro.', { tipo: 'ruim' }); gravarEstado({ bordoMiro: u }); };

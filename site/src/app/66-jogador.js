@@ -125,9 +125,10 @@ const JOG = {
       ${(n.loreMud || []).length ? `<details class="lore-mud"><summary>Mudanças na lore (${n.loreMud.length})</summary><ol>${n.loreMud.slice(0, 30).map(m => `<li><time>${new Date(m.em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</time> <b>${esc(m.campo)}</b>: ${esc(m.txt)}</li>`).join('')}</ol></details>` : ''}
       <h3>${ic('modos:lore_pdf', 32)} Lore em PDF</h3>
       ${pdf ? `<div class="pdf-c"><p><b>${esc(pdf.nome)}</b> · ${pdf.paginas} página(s) · enviado em ${new Date(pdf.em).toLocaleDateString('pt-BR')} <button class="link" data-act="pdf-abrir">abrir</button></p>
-        ${pdf.resumo && pdf.resumo.length ? `<h4>Resumo leve</h4><ul>${pdf.resumo.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}
+        ${pdf.resumo && pdf.resumo.v === 2 ? `${pdf.resumo.pontos.length ? `<h4>Pontos do texto</h4><ul>${pdf.resumo.pontos.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}${pdf.resumo.nomes.length ? `<h4>Nomes que mais aparecem</h4><p class="chips">${pdf.resumo.nomes.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</p>` : ''}<p class="nota">Isto não é um resumo: o site não usa IA e não entende a história. Ele só mostra o começo, o fim, os trechos com marca de tempo e os nomes. Para saber o que é verdade na história, leia o PDF.</p>`
+          : pdf.resumo && pdf.resumo.length ? `<h4>Trechos soltos do texto</h4><ul>${pdf.resumo.map(r => `<li>${esc(r)}</li>`).join('')}</ul><p class="nota">Estes trechos foram escolhidos pelo jeito antigo (palavras repetidas) e podem enganar. Envie o PDF de novo para trocar pelos pontos do texto.</p>` : ''}
         ${pdf.titulos && pdf.titulos.length ? `<h4>Partes</h4><p class="chips">${pdf.titulos.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</p>` : ''}
-        ${pdf.mud ? `<h4>O que mudou desde o PDF anterior</h4><p class="nota">${pdf.mud.novos.length} trecho(s) novo(s) · ${pdf.mud.saiu} trecho(s) que saíram.</p>${pdf.mud.novos.length ? `<ul>${pdf.mud.novos.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}` : ''}</div>` : '<p class="nota">Nenhum PDF ainda. O site lê o texto, faz um resumo leve e, quando você trocar o PDF, mostra o que mudou.</p>'}
+        ${pdf.mud ? `<h4>O que mudou desde o PDF anterior</h4><p class="nota">${pdf.mud.novos.length} trecho(s) novo(s) · ${pdf.mud.saiu} trecho(s) que saíram.</p>${pdf.mud.novos.length ? `<ul>${pdf.mud.novos.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}` : ''}</div>` : '<p class="nota">Nenhum PDF ainda. O site lê o texto, mostra os pontos principais (começo, passagens de tempo, fim e nomes) e, quando você trocar o PDF, mostra o que mudou.</p>'}
       <div class="linha-bts"><button class="bt" data-act="pdf-enviar">${pdf ? 'Trocar PDF' : 'Enviar PDF'}</button>${pdf ? '<button class="bt fino" data-act="pdf-tirar">Tirar PDF</button>' : ''}</div>
       <h3>${ic('modos:quadro', 32)} Quadro do Miro</h3>
       <div class="linha-bts"><input id="miro-link" class="cresce" placeholder="Link do quadro (miro.com/app/board/…)" value="${esc(n.miro || '')}"><button class="bt fino" data-act="miro-salvar">Salvar</button>${n.miro ? `<a class="bt fino" href="${esc(n.miro)}" target="_blank" rel="noopener">Abrir no Miro</a>` : ''}</div>
@@ -337,14 +338,28 @@ async function lerPdf(blob) {
   ls.forEach(l => { p += (p ? ' ' : '') + l; if (/[.!?…"”]$/.test(l) || l.length < 40) { if (p.length > 30) paras.push(p); p = ''; } }); if (p.length > 30) paras.push(p);
   return { paginas: pdf.numPages, titulos, paras, texto: ls.join(' ') };
 }
-/* resumo leve sem IA: as frases com as palavras que mais se repetem no texto */
-function resumir(texto, n = 5) {
-  const PARE = new Set('a o as os e de do da dos das em no na nos nas um uma uns umas que se por para com como mas ou ao aos à às é era foi ser ter tinha seu sua seus suas ele ela eles elas isso esse essa este esta mais muito já não sim me te lhe nos vos quando onde porque pois sobre entre até depois antes também só ainda'.split(' '));
-  const frases = texto.replace(/\s+/g, ' ').match(/[^.!?…]{25,280}[.!?…]/g) || [];
-  if (frases.length <= n) return frases.map(f => f.trim());
-  const freq = {}; texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z]{4,}/g)?.forEach(w => { if (!PARE.has(w)) freq[w] = (freq[w] || 0) + 1; });
-  const nota = f => { const ws = f.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z]{4,}/g) || []; return ws.reduce((a, w) => a + (freq[w] || 0), 0) / Math.max(5, ws.length); };
-  return frases.map((f, i) => ({ f: f.trim(), i, s: nota(f) })).sort((a, b) => b.s - a.s).slice(0, n).sort((a, b) => a.i - b.i).map(x => x.f);
+/* "pontos do texto", sem IA. O site não entende a história: só escolhe trechos pela POSIÇÃO e por marcas de tempo
+   (começo, "aos 15", "anos depois", "hoje", fim) e conta os nomes próprios. Antes escolhia as frases com as palavras
+   mais repetidas, e isso pegava frase de efeito como se fosse fato (ex.: a mentira que um personagem conta). */
+const RES_TEMPO = /\b(aos \d+|aos seus \d+|com \d+ anos|\d+ anos (depois|mais tarde|atr[aá]s)|anos depois|meses depois|dias depois|tempos? depois|hoje|atualmente|nos primeiros|durante os pr[oó]ximos|nos pr[oó]ximos|os pr[oó]ximos anos|naquel[ea] (mesm[ao] )?(dia|noite|manh[aã]|tarde|[eé]poca)|no dia|certo dia|um dia|desde ent[aã]o|a partir d(aquele|esse|e hoje)|quando (tinha|fez|completou)|ao completar|at[eé] que)\b/i;
+function resumir(texto, n = 7) {
+  const limpo = String(texto || '').replace(/\s+/g, ' ');
+  const frases = (limpo.match(/[^.!?…]{25,900}[.!?…]+/g) || []).map(f => f.trim()).filter(f => f.split(' ').length >= 5);
+  if (!frases.length) return { v: 2, pontos: [], nomes: [] };
+  const corta = f => f.length > 240 ? f.slice(0, 237).replace(/\s+\S*$/, '') + '…' : f;
+  const idx = new Set([0]); const ult = frases.length - 1; if (ult > 0) idx.add(ult); if (ult > 2) idx.add(ult - 1);
+  const tempo = frases.map((f, i) => RES_TEMPO.test(f) ? i : -1).filter(i => i > 0 && i < ult - 1);
+  const vagas = Math.max(0, n - idx.size);
+  if (tempo.length <= vagas) tempo.forEach(i => idx.add(i)); else for (let k = 0; k < vagas; k++) idx.add(tempo[Math.round(k * (tempo.length - 1) / Math.max(1, vagas - 1))]);
+  /* nomes próprios: palavra com maiúscula que nunca aparece em minúscula no texto */
+  const baixo = {}; (limpo.match(/(?:^|[\s"“(])[a-zà-ú]{3,}/g) || []).forEach(w => { w = w.replace(/^[\s"“(]/, ''); baixo[w] = (baixo[w] || 0) + 1; });
+  const alto = {}; (limpo.match(/[A-ZÀ-Ú][a-zà-ú]{2,}/g) || []).forEach(w => { alto[w] = (alto[w] || 0) + 1; });
+  const proprio = w => (alto[w] || 0) >= 3 * (baixo[w.toLowerCase()] || 0) + 1;   // "Jin" 20 vezes e "jin" 2: é nome. "Durante" 3 e "durante" 9: não é
+  const cont = {}; (limpo.match(/[A-ZÀ-Ú][a-zà-ú]{2,}(?: [A-ZÀ-Ú][a-zà-ú]{2,})?/g) || []).forEach(w => { const ps = w.split(' ');
+    if (ps.length === 2 && ps.every(proprio)) cont[w] = (cont[w] || 0) + 1; else ps.forEach(x => { if (proprio(x)) cont[x] = (cont[x] || 0) + 1; }); });
+  Object.keys(cont).forEach(w => { if (w.includes(' ') && cont[w] < 2) { w.split(' ').forEach(x => { cont[x] = (cont[x] || 0) + cont[w]; }); delete cont[w]; } });
+  const nomes = Object.entries(cont).filter(([w, c]) => c >= 2).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([w, c]) => `${w} (${c})`);
+  return { v: 2, pontos: [...idx].sort((a, b) => a - b).map(i => corta(frases[i])), nomes };
 }
 ACT['pdf-enviar'] = () => escolherArquivos('application/pdf,.pdf', false, async fs => {
   const t = toast('Lendo o PDF…', { tempo: 60000 });
@@ -354,7 +369,7 @@ ACT['pdf-enviar'] = () => escolherArquivos('application/pdf,.pdf', false, async 
     const chave = s => sem(s).replace(/[^a-z0-9]/g, '').slice(0, 80), novosP = leitura.paras.map(chave);
     let mud = null;
     if (velho && velho.chaves) { const v = new Set(velho.chaves), nset = new Set(novosP); mud = { novos: leitura.paras.filter((_, i) => !v.has(novosP[i])).slice(0, 8).map(s => s.slice(0, 220)), saiu: velho.chaves.filter(k => !nset.has(k)).length }; }
-    await gravarNotas({ pdf: { arq: info.id, nome: info.nome, em: Date.now(), paginas: leitura.paginas, titulos: leitura.titulos, resumo: resumir(leitura.texto, 5), chaves: novosP.slice(0, 400), mud } });
+    await gravarNotas({ pdf: { arq: info.id, nome: info.nome, em: Date.now(), paginas: leitura.paginas, titulos: leitura.titulos, resumo: resumir(leitura.texto), chaves: novosP.slice(0, 400), mud } });
     if (velho && velho.arq && velho.arq !== info.id) Arquivos.apagar(velho.arq).catch(() => {});
     if (t) t.remove(); toast('PDF lido e salvo.', { tipo: 'bom' });
   } catch (e) { if (t) t.remove(); toast(esc(e.message || 'Falhou ao ler o PDF.'), { tipo: 'ruim', tempo: 8000 }); }

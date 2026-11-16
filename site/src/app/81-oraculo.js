@@ -339,14 +339,16 @@ VIEWS.oraculo = {
     if (!window.CATALOGO && !Cat.falhou) catCarregar();   // as técnicas entram na busca assim que o catálogo carregar
     const r = Ora.q ? (Ora.res = oraResponder(Ora.q)) : null, hist = oraHist(), pend = mestre ? oraPend() : [];
     const exemplos = ORA_EX.concat(mestre ? ORA_EX_M : []);
+    const liv = r ? livSecaoHTML(Ora.q) : null;   // trechos do texto do livro (81b)
     let corpo;
-    if (!r) corpo = `<section class="pap ora-ini"><h2>Pode perguntar do seu jeito</h2><p class="nota">Eu procuro nas regras do site (com a página do livro), nas condições, nas armas${mestre ? ', nos inimigos do Manual, nas técnicas, nas fichas e nas regras da casa' : ', na sua ficha e no que o mestre revelou'}. Faço a conta quando dá. Não invento regra: se não achar, eu digo.</p>
+    if (!r) corpo = `<section class="pap ora-ini"><h2>Pode perguntar do seu jeito</h2><p class="nota">Eu procuro nas regras do site (com a página do livro), nas condições, nas armas${mestre ? ', nos inimigos do Manual, nas técnicas, nas fichas e nas regras da casa' : ', na sua ficha e no que o mestre revelou'}. Faço a conta quando dá. Depois mostro os trechos do próprio livro que falam disso, com a página. Não invento regra: se não achar, eu digo.</p>
         <div class="ora-ex">${exemplos.map(e => `<button class="chip" data-act="ora-ex" data-q="${esc(e)}">${esc(e)}</button>`).join('')}</div>
         ${hist.length ? `<h3>Suas últimas perguntas</h3><div class="ora-ex">${hist.map(e => `<button class="chip" data-act="ora-ex" data-q="${esc(e)}">${esc(e)}</button>`).join('')}</div>` : ''}</section>`;
     else corpo = `${r.diretas.length ? `<section class="ora-dir">${r.diretas.map(d => `<article class="pap ora-resp"><h2>${esc(d.t)}</h2>${d.h}<p>${d.semSelo ? '' : oraSelo(d.f)}</p></article>`).join('')}</section>` : ''}
-      ${!r.forte ? `<p class="pap ora-nao"><b>Não achei uma regra que responda isso com certeza.</b> ${r.grupos.length ? 'O mais perto que tenho está aqui embaixo.' : 'Tente outras palavras (ex.: o nome da condição, da arma ou do inimigo).'}
+      ${!r.forte ? `<p class="pap ora-nao"><b>${!r.grupos.length && liv.n ? 'Não tenho uma resposta pronta para isso.' : 'Não achei uma regra que responda isso com certeza.'}</b> ${r.grupos.length ? 'O mais perto que tenho está aqui embaixo.' : liv.n ? 'Mas achei estes trechos no texto do livro: veja abaixo.' : 'Tente outras palavras (ex.: o nome da condição, da arma ou do inimigo).'}
           ${mestre ? `<button class="bt fino" data-act="ora-pend">Guardar como pendência</button>` : ''}</p>` : ''}
       ${r.grupos.length ? `<h2 class="ora-h">${r.diretas.length ? 'Regras ligadas a isso' : 'O que o livro diz'}</h2><div class="ora-grade">${r.grupos.map(oraGrupoHTML).join('')}</div>` : ''}
+      ${liv.h}
       ${mestre ? `<section class="pap ora-dec"><h3>Decidiu algo na mesa sobre isso?</h3><p class="nota">Escreva a decisão. Ela vira regra da casa e passa a aparecer primeiro nas próximas buscas.</p>
         <div class="linha-bts"><input id="ora-dec" class="cresce" placeholder="Ex.: a ROOM some se a usuária desmaiar" data-enter="ora-dec-add"><button class="bt bom" data-act="ora-dec-add">Guardar decisão</button></div></section>` : ''}`;
     return `<div class="ora"><header class="esc-topo"><h1>${ic('status:busca', 64)}Pergunte ao livro</h1>

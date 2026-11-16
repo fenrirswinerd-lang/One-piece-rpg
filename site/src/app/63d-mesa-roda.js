@@ -22,12 +22,14 @@ const Roda = { ultVez: null, foto: null, palco: false,
     const js = (M.jogadores || []).filter(j => !j.mestre && fichaOuNome(j)), ult = this.ultimas(), c = M.combate && M.combate.ativo ? M.combate : null, daVez = c ? (c.lista || [])[c.vez] : null;
     const lugar = (k, foto, nome, extra = '', cls = '') => { const r = ult[k], t = r ? `<b class="rd-ult ${r.nat === 20 ? 'crit' : r.nat === 1 ? 'falha' : ''}" title="Última rolagem: ${esc(r.expr || '')}${r.rot ? ' · ' + esc(r.rot) : ''}">${r.total}</b>` : '';
       return `<div class="rd-l ${cls}" data-rd="${esc(k)}">${t}<span class="rd-fw"><span class="rd-f">${foto}</span><i class="rd-mol" aria-hidden="true"></i></span><span class="rd-n">${esc(nome)}</span>${extra}</div>`; };
-    const mestre = lugar('mestre', ic('modos:capitao', 48), 'Mestre', '', 'rd-mestre' + (online((M.presenca || {}).mestre) ? '' : ' fora'));
+    /* retrato de ícone em % (icFit): acompanha o tamanho do lugar. Com tamanho fixo em px, na tela cheia o rosto ficava pequeno e torto dentro da moldura */
+    const fotoR = j => j.foto && j.foto.ic && !j.foto.arq && !j.foto.url ? (icFit(j.foto.ic, 'retrato') || fotoJ(j, 48)) : fotoJ(j, 48);
+    const mestre = lugar('mestre', icFit('modos:capitao') || ic('modos:capitao', 48), 'Mestre', '', 'rd-mestre' + (online((M.presenca || {}).mestre) ? '' : ' fora'));
     return mestre + js.map(j => {
       const f = fichaDe(j), L = j.vivo || {}, max = f && f.pv ? num(f.pv.max) : 0, pv = L.pv == null ? max : Math.min(num(L.pv), max || num(L.pv)), pct = max ? clamp(pv / max, 0, 1) : 1;
       const barra = max ? `<i class="rd-pv ${pct <= .25 ? 'ruim' : pct <= .5 ? 'meio' : ''}" title="${souMestre() || j.uid === Eu.uid ? `PV ${pv}/${max}` : 'Pontos de vida'}"><i style="width:${Math.round(pct * 100)}%"></i></i>` : '<i class="rd-pv vazio"></i>';
       const cls = [j.uid === Eu.uid ? 'eu' : '', online(j.visto) || j.uid === Eu.uid ? '' : 'fora', max && pv <= 0 ? 'caido' : '', daVez && daVez.uid && daVez.uid === j.uid ? 'vez' : ''].join(' ');
-      return lugar(j.uid, fotoJ(j, 48), String(nomeJ(j)).split(' ')[0], barra, cls);
+      return lugar(j.uid, fotoR(j), String(nomeJ(j)).split(' ')[0], barra, cls);
     }).join('');
   },
   desenhar() {

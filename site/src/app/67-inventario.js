@@ -26,10 +26,19 @@ const PESO_LJ = { 'Ferramenta de Profissão': [4, 246], 'Livro de Profissão': [
   'Gás Inflamável': [1.5, 251], 'Ração de Viagem': [0.5, 251], 'Ração Militar': [0.7, 251], 'Ração para Animais': [0.5, 251], 'Refeição': [0.8, 251] };
 /* o nome mais comprido que aparece dentro do nome do item ganha (Kit de Primeiros Socorros antes de Kit) */
 const PESO_CHAVES = Object.keys(PESO_LJ).map(n => [sem(n), n]).sort((a, b) => b[0].length - a[0].length);
-function pesoLJ(nome) { const s = sem(nome); const h = PESO_CHAVES.find(([k]) => s.includes(k)); return h ? { kg: PESO_LJ[h[1]][0], pag: PESO_LJ[h[1]][1], nome: h[1] } : null; }
+function pesoLJ(nome) {
+  const s = sem(nome); const h = PESO_CHAVES.find(([k]) => s.includes(k)); if (h) return { kg: PESO_LJ[h[1]][0], pag: PESO_LJ[h[1]][1], nome: h[1] };
+  /* nome parecido ("kits de temperos", "primero socorro"): só vale se bater com um item só do livro */
+  const ps = Object.keys(PESO_LJ).filter(k => mesmoItem(k, nome)), kg = new Set(ps.map(k => PESO_LJ[k][0]));
+  if (!ps.length || kg.size > 1) return null;
+  const k = ps.sort((a, b) => b.length - a.length)[0]; return { kg: PESO_LJ[k][0], pag: PESO_LJ[k][1], nome: k, parecido: true };
+}
 function recipDe(nome) {
-  const s = sem(nome).replace(/-/g, ' '); if (/dormir|de pancada|baunilha/.test(s)) return null;   // saco de dormir não é recipiente
-  const r = RECIP.find(x => new RegExp('(^|[^a-z])' + x.k + '([^a-z]|$)').test(s)); if (!r) return null;
+  let s = sem(nome).replace(/-/g, ' '); if (/dormir|de pancada|baunilha/.test(s)) return null;   // saco de dormir não é recipiente
+  s = s.replace(/\bmochila\s+(p|peq[a-z.]*)(?![a-z])/, 'mochila pequena').replace(/\bmochila\s+(m|med[a-z.]*)(?![a-z])/, 'mochila media').replace(/\bmochila\s+(g|gde|gra[a-z.]*)(?![a-z])/, 'mochila grande');
+  let r = RECIP.find(x => new RegExp('(^|[^a-z])' + x.k + '([^a-z]|$)').test(s));
+  if (!r && /(^|[^a-z])mochila([^a-z]|$)/.test(s)) r = RECIP[0];   // "mochila" sem tamanho: vale a Pequena (30 kg)
+  if (!r) return null;
   const m = s.match(/(\d+[.,]?\d*)\s*kg/);   // "mochila pequena cabe (30kg)": vale o número escrito
   return { ...r, cap: m ? num(m[1]) : r.cap };
 }
@@ -77,7 +86,7 @@ JOG.inventario = function (j, f) {
   const linha = x => {
     const ds = destinos(it, x), cap = capDe(x), pd = cap != null ? pesoDentro(it, x.id) : 0, sug = !x.peso && pesoLJ(x.nome);
     return `<li class="${cap != null ? 'recip' : ''}"><span class="inv-ic">${x.ic ? ic(x.ic, 48) : ic(cap != null ? 'itens:mochila' : 'itens:mochila', 48)}</span><div><b>${esc(x.nome)}</b>${x.nota ? `<small>${esc(x.nota)}</small>` : ''}
-        ${cap != null ? `<small class="${pd > cap ? 'ruim' : ''}">Recipiente: ${kgTxt(pd)} / ${kgTxt(cap)} kg dentro${pd > cap ? ' · não cabe tudo' : ''}</small>${dentro(it, x.id).length ? `<button class="bt fino inv-abre" data-act="inv-abre" data-id="${x.id}" aria-expanded="${invAberto.has(x.id)}">${invAberto.has(x.id) ? '▾ Fechar' : '▸ Abrir'} (${dentro(it, x.id).length} ${dentro(it, x.id).length === 1 ? 'item' : 'itens'})</button>` : ''}` : ''}
+        ${cap != null ? `<small class="${pd > cap ? 'ruim' : ''}">Recipiente: ${kgTxt(pd)} / ${kgTxt(cap)} kg dentro${pd > cap ? ' · não cabe tudo' : ''}</small>${dentro(it, x.id).length ? `<button class="bt fino inv-abre" data-act="inv-abre" data-id="${x.id}" aria-expanded="${invAberto.has(x.id)}">${invAberto.has(x.id) ? '▾ Fechar' : '▸ Abrir'} (${dentro(it, x.id).length} ${dentro(it, x.id).length === 1 ? 'item' : 'itens'})</button>` : ''}<button class="bt fino inv-abre" data-act="inv-colar" data-id="${x.id}" title="Cole a lista do que tem dentro (por exemplo, a anotação da mochila na ficha)">＋ Colar lista</button>` : ''}
         ${sug ? `<small>Sem peso. Livro: ${kgTxt(sug.kg)} kg (${esc(sug.nome)}, LJ p. ${sug.pag}) <button class="link" data-act="inv-peso-lj" data-id="${x.id}">usar</button></small>` : ''}
         <label class="inv-onde">Onde <select data-chg="inv-onde" data-id="${x.id}" aria-label="Onde está ${esc(x.nome)}"><option value="">No corpo</option>${ds.map(d => `<option value="${d.id}" ${x.em === d.id ? 'selected' : ''}>Dentro: ${esc(d.nome)}</option>`).join('')}<option value="navio" ${x.em === 'navio' ? 'selected' : ''}>No navio (não pesa)</option></select></label>
         ${x.resgate ? `<button class="bt ouro fino inv-resg" data-act="inv-resgatar" data-id="${x.id}">${ic('itensop:beli_moedas', 20)} Resgatar ฿ ${fmt(x.resgate * (x.qtd || 1))}</button>` : ''}${x.valor && lojaAberta() ? `<button class="bt bom fino inv-resg" data-act="inv-vender" data-id="${x.id}">${ic('itensop:beli_notas', 20)} Vender na loja por ฿ ${fmt(x.valor)}</button>` : ''}</div>
@@ -106,7 +115,7 @@ JOG.inventario = function (j, f) {
       <div class="inv-add"><button class="bt-ic" data-act="inv-ic" id="inv-ic-bt" title="Ícone do item">${ic(JOG.icNovo || 'itens:mochila', 32)}</button><input id="inv-nome" placeholder="Nome do item" class="cresce" maxlength="50" data-enter="inv-add">
         <label>Qtd <input id="inv-qtd" type="number" min="1" value="1" style="width:4em"></label><label>kg cada <input id="inv-peso" type="number" min="0" step="0.1" placeholder="livro" style="width:5em"></label>
         <input id="inv-nota" placeholder="Nota (opcional)" maxlength="80"><button class="bt" data-act="inv-add">Adicionar</button></div>
-      <p class="nota">Peso vazio: o site procura o peso no Livro do Jogador (p. 246–251). Mochila, saco, baú e afins viram recipiente sozinhos.</p>
+      <p class="nota">Peso vazio: o site procura o peso no Livro do Jogador (p. 246–251). Mochila, saco, baú e afins viram recipiente sozinhos. Na ficha, a anotação da mochila (uma lista do que tem dentro) vem junto quando você traz os itens.</p>
       <div class="inv-recip"><span>Recipiente:</span>${RECIP.map((r, k) => `<button class="bt fino" data-act="inv-recip" data-k="${k}" title="Cabe ${r.cap} kg · pesa ${kgTxt(r.kg)} kg${r.sug ? ' (peso sugerido: o livro não diz)' : ''}">${esc(r.n)} <small>${r.cap} kg</small></button>`).join('')}</div>
       <div class="linha-bts">${f ? `<button class="bt fino" data-act="inv-importar">Trazer itens, armas e dinheiro da ficha</button>` : ''}${lojaAberta() ? `<button class="bt bom" data-act="loja-entrar">${iconeHTML(lojaAberta().icone, 32)} Entrar na loja: ${esc(lojaAberta().nome)}</button>` : ''}${souMestre() || verCatalogo() ? `<button class="bt fino" data-act="inv-precos">${ic('itensop:beli_notas', 32)} Preços do livro</button>` : ''}</div>
       <details class="caixa"><summary>Regras de carga (LJ)</summary><ul class="lista">
@@ -137,31 +146,74 @@ ACT['inv-tirar'] = el => {
   confirmar(`Tirar <b>${esc(x ? x.nome : 'item')}</b> do inventário?${n ? ` Os ${n} item(ns) de dentro ficam no lugar onde ela estava.` : ''}`, () => {
     i.itens = i.itens.filter(y => y.id !== el.dataset.id).map(y => y.em === el.dataset.id ? { ...y, em: x.em || null } : y); gravarInv(i); });
 };
-/* trazer da ficha: as 14 linhas do inventário, as armas e o dinheiro. Não repete o que já tem (pelo nome). */
-ACT['inv-importar'] = () => {
-  const f = minhaFicha(), i = inv(); if (!f) return;
-  const ja = new Set(i.itens.map(x => sem(x.nome)));
-  const deItens = [];
-  (f.itens || []).filter(a => a.nome && !ja.has(sem(a.nome))).forEach(a => {
-    ja.add(sem(a.nome));
-    if (!(a.dentro || []).length) return deItens.push(itemNovo(a.nome, num(a.qtd) || 1, num(a.peso) || null, { nota: a.nota || 'Da ficha' }));
-    /* item com lista na anotação (ex.: mochila): vira recipiente e cada linha vai para dentro dele.
-       O peso da ficha já soma o que tem dentro, então o recipiente fica com o que sobra (o total bate com a ficha). */
-    const S = a.dentro.reduce((s, d) => s + (num(d.peso) || 0) * (num(d.qtd) || 1), 0), W = num(a.peso) || 0;
-    const c = itemNovo(a.nome, 1, W >= S ? Math.round((W - S) * 100) / 100 : W, { nota: `Da ficha · anotação com ${a.dentro.length} itens` });
+/* trazer da ficha: as 14 linhas do inventário, as armas e o dinheiro. Não repete o que já tem (pelo nome).
+   Anotação com lista (ex.: na mochila) vira o que está DENTRO do item:
+   · se o item da anotação também é uma linha da ficha (Kit Médico na linha 7 e "kit médico" na anotação), a linha vai para dentro, sem duplicar;
+   · se não é, nasce um item novo dentro. Peso: o da anotação; sem peso, o do livro se couber no peso que a ficha dá ao recipiente. */
+function invDaFicha(f, i) {
+  const ja = new Set(i.itens.map(x => sem(x.nome))), linhas = (f.itens || []).filter(a => a.nome && String(a.nome).trim());
+  const deItens = [], daLinha = new Map(); let dentroN = 0;
+  linhas.forEach(a => { const nm = String(a.nome).trim(); if (ja.has(sem(nm))) return; ja.add(sem(nm));
+    const x = itemNovo(nm, num(a.qtd) || 1, num(a.peso) || null, { nota: a.nota || 'Da ficha' }); daLinha.set(a, x); deItens.push(x); });
+  linhas.forEach(a => {
+    if (!(a.dentro || []).length) return;
+    const c = daLinha.get(a) || i.itens.find(x => sem(x.nome) === sem(String(a.nome).trim())); if (!c) return;
+    const W = num(a.peso) || 0, novos = [];
+    a.dentro.forEach(d => {
+      const outros = [...deItens, ...i.itens].filter(x => x !== c && !ehRecip(x));
+      const igual = outros.filter(x => sem(x.nome) === sem(d.nome)), par = igual.length ? igual : outros.filter(x => mesmoItem(x.nome, d.nome));
+      if (par.length === 1 || igual.length) { const x = par[0]; if (!x.em) { x.em = c.id; dentroN++; if (!x.nota || x.nota === 'Da ficha') x.nota = `Dentro de ${c.nome} (anotação da ficha)`; } return; }
+      if (par.length > 1) return;   // dois parecidos: não adivinha
+      const lj = pesoLJ(d.nome), nome = lj && lj.parecido ? lj.nome : d.nome;
+      if (ja.has(sem(nome))) return; ja.add(sem(nome));
+      novos.push({ nome, qtd: num(d.qtd) || 1, peso: d.peso != null ? num(d.peso) : null, lj });
+    });
+    /* o peso da linha na ficha já soma o que tem dentro: o recipiente fica com o que sobra (o total bate com a ficha) */
+    const sabido = novos.reduce((t, d) => t + (d.peso != null ? d.peso * d.qtd : 0), 0), doLivro = novos.reduce((t, d) => t + (d.peso == null && d.lj ? d.lj.kg * d.qtd : 0), 0);
+    const usaLivro = doLivro > 0 && (!W || sabido + doLivro <= W + 0.01), S = sabido + (usaLivro ? doLivro : 0);
+    if (daLinha.get(a) && W) c.peso = W >= S ? Math.round((W - S) * 100) / 100 : W;
     if (c.cap == null) c.cap = Math.max(W, S);
-    deItens.push(c);
-    a.dentro.forEach(d => { if (ja.has(sem(d.nome))) return; ja.add(sem(d.nome));
-      deItens.push(itemNovo(d.nome, num(d.qtd) || 1, d.peso != null ? num(d.peso) : 0, { em: c.id, nota: d.peso != null ? `Dentro de ${a.nome} (anotação da ficha)` : 'Sem peso na anotação da ficha' })); });
+    c.nota = `Da ficha · anotação com ${a.dentro.length} ${a.dentro.length === 1 ? 'item' : 'itens'}`;
+    novos.forEach(d => { const temPeso = d.peso != null || (usaLivro && d.lj); dentroN++;
+      deItens.push(itemNovo(d.nome, d.qtd, d.peso != null ? d.peso : usaLivro && d.lj ? d.lj.kg : 0, { em: c.id, nota: d.peso != null ? `Dentro de ${c.nome} (anotação da ficha)` : temPeso ? `Dentro de ${c.nome} · peso do livro (LJ p. ${d.lj.pag})` : 'Sem peso na anotação da ficha' })); });
   });
-  const deArmas = (f.armas || []).filter(a => a.nome && !ja.has(sem(a.nome))).map(a => { ja.add(sem(a.nome)); const lj = (catalogo().find(c => sem(c.nome) === sem(a.nome)) || {}).kg;
+  const jaItem = a => [...deItens, ...i.itens].some(x => { const tx = chaveItem(x.nome), ta = chaveItem(a.nome); return tx.length && ta.length && quaseIgual(tx[0], ta[0]) && mesmoItem(x.nome, a.nome); });   // "Katana" (arma) e "Katanas Shio e Kuro" (item): é a mesma coisa
+  const deArmas = (f.armas || []).filter(a => a.nome && !ja.has(sem(a.nome)) && !jaItem(a)).map(a => { ja.add(sem(a.nome)); const lj = (catalogo().find(c => sem(c.nome) === sem(a.nome)) || {}).kg;
     return { id: novoId(), nome: a.nome, qtd: 1, peso: lj || 0, nota: [a.dano, a.tipo].filter(Boolean).join(' · '), ic: /espada|katana|l[aâ]mina/i.test(a.nome + a.tipo) ? 'tesouro:espada' : 'itensop:meito' }; });
   /* o que está na ficha e não é recipiente vai para dentro da primeira mochila que veio da ficha, se couber */
   const novos = [...deItens, ...deArmas], mochila = [...i.itens, ...novos].find(ehRecip);
-  const temNota = deItens.some(x => x.em);   // a ficha já disse o que vai em cada recipiente: não mexe no resto
+  const temNota = dentroN > 0;   // a ficha já disse o que vai em cada recipiente: não mexe no resto
   if (mochila && !temNota) { let livre = capDe(mochila) - pesoDentro([...i.itens, ...novos], mochila.id); deItens.forEach(x => { if (x === mochila || ehRecip(x) || x.em) return; if (pesoDe(x) <= livre) { x.em = mochila.id; livre -= pesoDe(x); } }); }
-  i.itens = [...i.itens, ...novos]; if (i.beli == null && f.dinheiro != null) i.beli = num(f.dinheiro);
-  gravarInv(i); toast(`${deItens.length} item(ns) e ${deArmas.length} arma(s) da ficha${i.beli != null ? ', e a carteira' : ''}.${mochila && deItens.length ? ` Itens guardados em: ${esc(mochila.nome)}.` : ''}`, { tipo: 'bom', tempo: 5000 });
+  return { novos, deItens, deArmas, mochila, dentroN, temNota };
+}
+ACT['inv-importar'] = () => {
+  const f = minhaFicha(), i = inv(); if (!f) return;
+  const r = invDaFicha(f, i);
+  i.itens = [...i.itens, ...r.novos]; if (i.beli == null && f.dinheiro != null) i.beli = num(f.dinheiro);
+  i.itens.filter(x => ehRecip(x) && dentro(i.itens, x.id).length && r.novos.some(y => y.em === x.id)).forEach(x => invAberto.add(x.id)); lembrar('inv-aberto', JSON.stringify([...invAberto]));
+  gravarInv(i);
+  const semNota = !!(eu().link) && !r.dentroN && (f.itens || []).some(a => recipDe(a.nome)) && !(f.itens || []).some(a => (a.dentro || []).length || a.nota);
+  if (!r.novos.length && !r.dentroN) return toast('Nada novo na ficha: tudo já está no inventário.');
+  toast(`${r.deItens.length} item(ns) e ${r.deArmas.length} arma(s) da ficha${i.beli != null ? ', e a carteira' : ''}.${r.dentroN ? ` ${r.dentroN} dentro de recipiente, pela anotação.` : r.mochila && r.deItens.length ? ` Itens guardados em: ${esc(r.mochila.nome)}.` : ''}${semNota ? ' Se a mochila tem anotação na ficha e ela não veio pelo link, use <b>Colar lista</b> na mochila.' : ''}`, { tipo: 'bom', tempo: semNota ? 9000 : 5000 });
+};
+/* colar lista: o jogador cola o texto da anotação (ou escreve uma lista) e os itens entram no recipiente */
+ACT['inv-colar'] = el => {
+  const i = inv(), c = i.itens.find(y => y.id === el.dataset.id); if (!c) return;
+  Modal.abrir(`<h2>Colar lista em: ${esc(c.nome)}</h2>
+    <p class="nota">Um item por linha, ou separados por vírgula. Quantidade e peso são opcionais. Exemplos: <b>2 tochas</b> · <b>corda 3kg</b> · <b>ração x5 0,5kg</b>.</p>
+    <textarea id="inv-colar-t" rows="8" style="width:100%" placeholder="kit médico 2kg&#10;3 kits de primeiros socorros&#10;corda 3kg" autofocus></textarea>
+    <div id="inv-colar-v" class="nota"></div>
+    <div class="linha-bts"><button class="bt bom" id="inv-colar-ok">Pôr dentro</button><button class="bt" data-act="modal-fechar">Cancelar</button></div>`,
+  { titulo: 'Colar lista', onBind: m => {
+    const t = m.querySelector('#inv-colar-t'), v = m.querySelector('#inv-colar-v');
+    const ler = () => { const d = conteudoNota('Dentro: ' + t.value.replace(/\n+/g, '; ')); return d; };
+    t.addEventListener('input', () => { const d = ler(); v.innerHTML = d.length ? 'Vou pôr: ' + d.map(x => `<b>${x.qtd}× ${esc(x.nome)}</b>${x.peso != null ? ` (${kgTxt(x.peso)} kg)` : ''}`).join(' · ') : ''; });
+    m.querySelector('#inv-colar-ok').addEventListener('click', () => {
+      const d = ler(); if (!d.length) return toast('Escreva pelo menos um item.');
+      const i2 = inv(); d.forEach(x => { const lj = x.peso == null ? pesoLJ(x.nome) : null; i2.itens.push(itemNovo(lj && lj.parecido ? lj.nome : x.nome, x.qtd, x.peso, { em: c.id })); });
+      invAberto.add(c.id); lembrar('inv-aberto', JSON.stringify([...invAberto])); Modal.fechar(); gravarInv(i2); toast(`${d.length} item(ns) dentro de ${esc(c.nome)}.`, { tipo: 'bom' });
+    });
+  } });
 };
 
 /* ficha completa (mestre): o inventário da ficha (14 linhas) e o do site, se for jogador online */
