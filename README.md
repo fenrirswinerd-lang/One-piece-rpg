@@ -197,10 +197,18 @@ cabeça para baixo; a ilha vira lanterna; a casca se solta; o coro dos construto
 cartaz em Lastro só se os jogadores pararem para ver (telão + jornal, sem forçar);
 nome e risada do Gen fechados; Law e Kid existem.
 
-**Em aberto (só registrado, não decidir por conta própria):** espécie da Amy (Mink
-raposa ou Oni) e se ela ainda tem a Ope Ope; combates de Casca Branca calibrados
-para 2 jogadores (o Grisk e o Karvel sozinhos passam do Mortal com o
-multiplicador); imagem final do arco (C6).
+**Decidido (17/11):** a Tsukyo (Amy) é da mesma espécie do Kaido (Oni/Ogro no
+sistema) e usa a Ato Ato no Mi, não a Ope Ope — já bate com a ficha em
+`fontes/lore/` (espécie Ogros, fruta "ato ato"). O navio sem bandeira visto em
+Lastro era do pirata desconhecido que estava na mesma cela em Mary Geoise (morto
+na fuga do Coliseu); ele tinha se desvinculado do navio antes de chegar a Lastro.
+**Quebrado por essa decisão:** a cena "F. A cela à parte" de Mary Geoise supunha a
+Amy cortando as grades com a Room; isso não existe mais e falta um novo jeito de
+abrir a cela (ver Notion).
+
+**Em aberto (só registrado, não decidir por conta própria):** combates de Casca
+Branca calibrados para 2 jogadores (o Grisk e o Karvel sozinhos passam do Mortal
+com o multiplicador); imagem final do arco (C6).
 
 ### Sessão 1 — o que já foi jogado (10/11, registrado 17/11)
 
