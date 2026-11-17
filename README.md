@@ -202,6 +202,21 @@ raposa ou Oni) e se ela ainda tem a Ope Ope; combates de Casca Branca calibrados
 para 2 jogadores (o Grisk e o Karvel sozinhos passam do Mortal com o
 multiplicador); imagem final do arco (C6).
 
+### Sessão 1 — o que já foi jogado (10/11, registrado 17/11)
+
+Personagens dos jogadores: Tsukyo (Amy) e Morita Roman (Tontatta). Resumo: Tsukyo
+chega em Lastro de navio mercante com uma carta pra buscar relações pro reino dela;
+conhece o Velho Creel, vê o cartaz do Luffy, ajuda a resolver um mal-entendido entre
+um nobre e a guilda dos Estivadores (a Mesa de Trás), entrega a carta ao Mestre
+Bollard. Lastro é destruída por uma arma do Governo. Em Mary Geoise, presos numa
+cela, o Saint Orvald atira no Velho Creel por falar demais — **ele sobrevive** (não
+morre como estava planejado antes) e é resgatado pelo revolucionário disfarçado de
+CP9. Lutam no Coliseu; durante um tremor (Gura Gura), o Gen salva o Tontata de cair
+da Red Line e pede ajuda com Casca Branca em troca de tirá-los de lá. **Caminho
+escolhido: o do Gen, não o do Elias**, nesta fuga. A sessão termina com o telão
+mostrando a morte do Barba Branca. Registro completo no Notion, dentro de "Sessão
+1".
+
 ## Como usar isto num chat novo
 1. Ler este README primeiro.
 2. Antes de propor algo nas regras do sistema, checar `docs/` para não repetir ou
