@@ -160,9 +160,11 @@ terra escura com florestas e raízes saindo pelas bordas; em cima, a casca branc
 escorrendo como glacê. Na frente, uma grande escadaria sobe até o topo. Ilha mais
 pobre e de pouco comércio, mas não acabada.
 
-*O Hakuji (CORRIGIDO 21/11):* o povo e a Marinha sabem que o minério existe — é a
-fama da ilha. Acham que a extração acabou (é duro, não sai mais). O que ninguém do
-povo sabe é da cavidade com minério cru intacto.
+*O Hakuji (CORRIGIDO 21/11):* a ilha extraía o minério e fazia suas obras com ele.
+Pra formar a casca, os construtores derreteram parte das obras principais. O povo
+acha que perdeu o acesso ao minério (terra contaminada) e que todas as obras de
+riqueza foram derretidas. Na verdade estão preservadas na cavidade, junto com
+esculturas e resíduo de minério.
 
 *Ficha de território (GN p.80, PROPOSTA):* Nível D, vila pequena (~2.000–3.000
 hab.). Governo civil: um prefeito (nome EM ABERTO) que não sabe da cavidade. Base da
