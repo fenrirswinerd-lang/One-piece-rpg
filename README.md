@@ -154,6 +154,23 @@ cavidade oca com riquezas preservadas e um gás mortal (o Bafo), gerado pela pra
 povo acha que o minério (Hakuji) acabou; não sabe da cavidade. Marinha e piratas
 sempre souberam e tiram "o que sobrou" pelas galerias antigas.
 
+*Aparência (DECIDIDO 21/11):* de longe parece um bolo gigante, ou uma ilha muito
+alta coberta de neve — ninguém sabe bem o que é aquele branco. De perto: base de
+terra escura com florestas e raízes saindo pelas bordas; em cima, a casca branca
+escorrendo como glacê. Na frente, uma grande escadaria sobe até o topo. Ilha mais
+pobre e de pouco comércio, mas não acabada.
+
+*O Hakuji (CORRIGIDO 21/11):* o povo e a Marinha sabem que o minério existe — é a
+fama da ilha. Acham que a extração acabou (é duro, não sai mais). O que ninguém do
+povo sabe é da cavidade com minério cru intacto.
+
+*Ficha de território (GN p.80, PROPOSTA):* Nível D, vila pequena (~2.000–3.000
+hab.). Governo civil: um prefeito (nome EM ABERTO) que não sabe da cavidade. Base da
+Marinha pequena (~12, Grisk e Ruck), menor que o padrão do livro. Atividades:
+louça comum, carpintaria, pesca, pouco comércio de passagem. Por baixo: contrabando
+de minério cru (Marinha + Karvel). Tributo e riqueza da ilha: EM ABERTO (o mestre
+vai trabalhar o minério depois).
+
 *A cura (fluxo do mestre, DECIDIDO):* o grupo precisa de dois irmãos (cientista e
 médico). O furo do gás já existe — foi aberto pelos garimpeiros (Toupeiras), que se
 contaminaram e o vedaram depois; o gás não se espalha. O grupo entra por esse furo
